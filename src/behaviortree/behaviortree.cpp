@@ -315,9 +315,10 @@ namespace behaviac {
                     if (!StringUtils::IsNullOrEmpty(pEventName) && StringUtils::StringEqual(pEventName, eventName)) {
                         pE->switchTo(pAgent, eventParams);
 
-                        if (pE->TriggeredOnce()) {
+						// all events trigger once
+                        // if (pE->TriggeredOnce()) {
                             return false;
-                        }
+                        //}
                     }
                 }
             }

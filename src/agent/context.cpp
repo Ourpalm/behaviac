@@ -245,7 +245,7 @@ namespace behaviac {
     }
 
     void Context::addAgent_(Agent* pAgent) {
-        ASSERT_MAIN_THREAD();
+        // ASSERT_MAIN_THREAD();
 
         int agentId = pAgent->GetId();
         int priority = pAgent->GetPriority();
@@ -263,7 +263,7 @@ namespace behaviac {
     }
 
     void Context::removeAgent_(Agent* pAgent) {
-        ASSERT_MAIN_THREAD();
+        // ASSERT_MAIN_THREAD();
 
         int agentId = pAgent->GetId();
         int priority = pAgent->GetPriority();

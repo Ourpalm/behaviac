@@ -1,0 +1,4 @@
+# ignore
+bin
+lib
+build/cmake_binary

@@ -81,7 +81,7 @@ namespace behaviac {
     }
 
     //m_id == -1, not a valid agent
-    Agent::Agent() : m_context_id(-1), m_currentBT(0), m_id(-1), m_priority(0), m_bActive(1), m_referencetree(false), _balckboard_bound(false), m_excutingTreeTask(0), m_variables(0), m_idFlag(0xffffffff), m_planningTop(-1) {
+    Agent::Agent() : m_context_id(-1), m_currentBT(0), m_id(-1), m_priority(0), m_bActive(1), m_referencetree(false), _balckboard_bound(false), m_excutingTreeTask(0), m_variables(0), m_idFlag(0xffffffff), m_planningTop(-1), _context(NULL) {
         bool bOk = TryStart();
         BEHAVIAC_ASSERT(bOk);
         BEHAVIAC_UNUSED_VAR(bOk);
@@ -204,8 +204,9 @@ namespace behaviac {
     }
 
     void Agent::destroy_() {
-        int contextId = this->GetContextId();
-        Context& c = Context::GetContext(contextId);
+        //int contextId = this->GetContextId();
+		Context* pctx = GetCtxPtr();
+		Context& c = *pctx; // Context::GetContext(contextId);
 
         c.RemoveAgent(this);
 
@@ -215,26 +216,26 @@ namespace behaviac {
         }
     }
 
-    void Agent::Init_(int contextId, Agent* pAgent, short priority, const char* agentInstanceName) {
+    void Agent::Init_(Context* pctx, Agent* pAgent, short priority, const char* agentInstanceName) {
 #if !BEHAVIAC_RELEASE
         pAgent->m_debug_verify = kAGENT_DEBUG_VERY;
 #endif//#if !BEHAVIAC_RELEASE
 
-        BEHAVIAC_ASSERT(contextId >= 0, "invalid context id");
-
-        pAgent->m_context_id = contextId;
+        // BEHAVIAC_ASSERT(contextId >= 0, "invalid context id");
+		BEHAVIAC_ASSERT(pctx, "invalid context ptr");
+        pAgent->m_context_id = pctx->GetContextId();
         pAgent->m_id = ms_agent_index++;
         pAgent->m_priority = priority;
 
         pAgent->SetName(agentInstanceName);
         pAgent->InitVariableRegistry();
 
-        Context& c = Context::GetContext(contextId);
+		Context& c = *pctx; // Context::GetContext(contextId);
         c.AddAgent(pAgent);
 
 #if !BEHAVIAC_RELEASE
         Agent::Agents_t* agents = Agents(false);
-        BEHAVIAC_ASSERT(agents);
+        // BEHAVIAC_ASSERT(agents);
 
 		if (agents) {
 			const char* agentClassName = pAgent->GetObjectTypeName();
@@ -930,7 +931,7 @@ namespace behaviac {
 
 		if (agentInstanceName[0] != '\0' && !StringUtils::StringEqual(agentInstanceName, "Self")) {
             // global
-            pParent = Agent::GetInstance(agentInstanceName, pSelf ? pSelf->GetContextId() : 0);
+            pParent = Agent::GetInstance(agentInstanceName, pSelf ? pSelf->GetCtxPtr() : NULL);
 
             // member
             if (!pParent && pSelf) {
@@ -952,8 +953,8 @@ namespace behaviac {
         return pParent;
     }
 
-    Agent* Agent::GetInstance(const char* agentInstanceName, int contextId) {
-        Context& c = Context::GetContext(contextId);
+    Agent* Agent::GetInstance(const char* agentInstanceName, Context* pctx) {
+		Context& c = *pctx; // Context::GetContext(contextId);
 
         return c.GetInstance(agentInstanceName);
     }
@@ -980,8 +981,8 @@ namespace behaviac {
         return 0;
     }
 
-    bool Agent::BindInstance(Agent* pAgentInstance, const char* agentInstanceName, int contextId) {
-        Context& c = Context::GetContext(contextId);
+    bool Agent::BindInstance(Agent* pAgentInstance, const char* agentInstanceName, Context* pctx) {
+		Context& c = *pctx; // Context::GetContext(contextId);
 
         if (!agentInstanceName) {
             agentInstanceName = pAgentInstance->GetClassTypeName();
@@ -990,8 +991,8 @@ namespace behaviac {
         return c.BindInstance(agentInstanceName, pAgentInstance);
     }
 
-    bool Agent::UnbindInstance(const char* agentInstanceName, int contextId) {
-        Context& c = Context::GetContext(contextId);
+    bool Agent::UnbindInstance(const char* agentInstanceName, Context* pctx) {
+		Context& c = *pctx; // Context::GetContext(contextId);
 
         return c.UnbindInstance(agentInstanceName);
     }
@@ -1159,7 +1160,7 @@ namespace behaviac {
         Agent* pParent = const_cast<Agent*>(pAgent);
 
         if (!StringUtils::IsNullOrEmpty(instanceName) && !StringUtils::Compare(instanceName, "Self")) {
-            pParent = Agent::GetInstance(instanceName, (pParent != NULL) ? pParent->GetContextId() : 0);
+            pParent = Agent::GetInstance(instanceName, (pParent != NULL) ? pParent->GetCtxPtr() : NULL);
 
             //if (pAgent != NULL && pParent == NULL && !Utils.IsStaticClass(instanceName))
             if (pAgent != NULL && pParent == NULL /*&& !Utils.IsStaticClass(instanceName)*/) { //TODO how to handle Statice Class
@@ -1204,30 +1205,30 @@ namespace behaviac {
 #if !BEHAVIAC_RELEASE
     Agent::Agents_t* Agent::ms_agents = 0;
     Agent::Agents_t* Agent::Agents(bool bCleanup) {
-        if (!bCleanup) {
-            if (!ms_agents) {
-                ms_agents = BEHAVIAC_NEW Agent::Agents_t;
-            }
+//        if (!bCleanup) {
+//            if (!ms_agents) {
+//                ms_agents = BEHAVIAC_NEW Agent::Agents_t;
+//            }
 
-            return ms_agents;
-        }
+//            return ms_agents;
+//        }
 
-        if (ms_agents) {
-            return ms_agents;
-        }
+//        if (ms_agents) {
+//            return ms_agents;
+//        }
 
         return 0;
     }
 
     Agent* Agent::GetAgent(const char* agentName) {
-        Agent* pAgent = Agent::GetInstance(agentName, 0);
+        Agent* pAgent = Agent::GetInstance(agentName, NULL);
 
         if (pAgent) {
             return pAgent;
         }
 
         Agent::Agents_t* agents = Agents(false);
-        BEHAVIAC_ASSERT(agents);
+        // BEHAVIAC_ASSERT(agents);
 		if (agents) {
 			Agent::Agents_t::iterator it = agents->find(agentName);
 

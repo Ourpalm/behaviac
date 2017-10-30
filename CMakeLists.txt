@@ -82,6 +82,23 @@ if (MSVC)
 	GroupSources("${PROJECT_SOURCE_DIR}/src/" "src")
 endif()
 
+#fix build on gcc5.1 greater core dump.
+IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+#for clang
+    MESSAGE(STATUS "Build In: " ${BUILD_HOST_NAME} " Use Clang.")
+    ADD_DEFINITIONS(-D_GLIBCXX_USE_CXX11_ABI=0)
+ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#for gcc
+    MESSAGE(STATUS "Build In: " ${BUILD_HOST_NAME} " Use Gcc.")
+    ADD_DEFINITIONS(
+               -Wno-unused-but-set-variable
+    )
+
+    IF (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.1)
+      ADD_DEFINITIONS(-D_GLIBCXX_USE_CXX11_ABI=0)
+    ENDIF()
+ENDIF()
+
 
 # source_group(inc FILES ${BEHAVIAC_INC})
 # source_group(src FILES ${BEHAVIAC_SRC})
@@ -330,7 +347,7 @@ endif()
 configure_file (
   "${PROJECT_SOURCE_DIR}/build/_config.h.in"
   "${PROJECT_SOURCE_DIR}/inc/behaviac/common/_config.h"
-  NEWLINE_STYLE WIN32
+#  NEWLINE_STYLE WIN32
   )
 
 if (NOT BEHAVIAC_ANDROID_STUDIO)
@@ -414,37 +431,37 @@ else()
 	message( STATUS "build static libs" )
 endif()
 
-if (NOT BEHAVIAC_ANDROID_STUDIO)
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/test/btunittest")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/test/btremotetest")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/test/demo_running")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/test/usertest")
-
-	if (MSVC)
-		add_subdirectory ("${PROJECT_SOURCE_DIR}/test/btperformance")
-	    if (EXISTS "${PROJECT_SOURCE_DIR}/example/spaceship")
-	        add_subdirectory ("${PROJECT_SOURCE_DIR}/example/spaceship")
-	    endif()
-	endif()
-
-	#add_subdirectory ("${PROJECT_SOURCE_DIR}/example/airbattledemo")
-
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_1/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_1_1/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_1_2/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_2/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_3/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_4/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_5/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_6/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_7/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_8/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_9/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_10/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_11/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_12/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_13/cpp")
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_14/cpp")
-else()
-	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_11/cpp")
-endif()
+#if (NOT BEHAVIAC_ANDROID_STUDIO)
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/test/btunittest")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/test/btremotetest")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/test/demo_running")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/test/usertest")
+#
+#	if (MSVC)
+#		add_subdirectory ("${PROJECT_SOURCE_DIR}/test/btperformance")
+#	    if (EXISTS "${PROJECT_SOURCE_DIR}/example/spaceship")
+#	        add_subdirectory ("${PROJECT_SOURCE_DIR}/example/spaceship")
+#	    endif()
+#	endif()
+#
+#	#add_subdirectory ("${PROJECT_SOURCE_DIR}/example/airbattledemo")
+#
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_1/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_1_1/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_1_2/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_2/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_3/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_4/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_5/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_6/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_7/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_8/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_9/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_10/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_11/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_12/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_13/cpp")
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_14/cpp")
+#else()
+#	add_subdirectory ("${PROJECT_SOURCE_DIR}/tutorials/tutorial_11/cpp")
+#endif()
