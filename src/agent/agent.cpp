@@ -226,6 +226,7 @@ namespace behaviac {
         pAgent->m_context_id = pctx->GetContextId();
         pAgent->m_id = ms_agent_index++;
         pAgent->m_priority = priority;
+    	pAgent->_context = pctx;
 
         pAgent->SetName(agentInstanceName);
         pAgent->InitVariableRegistry();
