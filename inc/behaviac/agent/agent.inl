@@ -68,7 +68,7 @@ namespace behaviac
     template<typename TAGENT>
     BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(Context* pctx, const char* agentInstanceName, short priority)
     {
-		BEHAVIAC_ASSERT(pctx)
+		BEHAVIAC_ASSERT(pctx);
         const char* agentInstanceNameAny = agentInstanceName;
         if (StringUtils::IsNullOrEmpty(agentInstanceName))
         {
