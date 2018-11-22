@@ -1579,8 +1579,8 @@ namespace behaviac {
     }
 
     bool BranchTask::onevent(Agent* pAgent, const char* eventName, behaviac::map<uint32_t, IInstantiatedVariable*>* eventParams) {
-        if (this->m_node->HasEvents()) {
-            bool bGoOn = true;
+		bool bGoOn = true;
+		if (this->m_node->HasEvents()) {
 
             if (this->m_currentTask) {
                 bGoOn = this->oneventCurrentNode(pAgent, eventName, eventParams);
@@ -1591,7 +1591,7 @@ namespace behaviac {
             }
         }
 
-        return true;
+        return bGoOn;
     }
 
     bool LeafTask::onevent(Agent* pAgent, const char* eventName, behaviac::map<uint32_t, IInstantiatedVariable*>* eventParams) {

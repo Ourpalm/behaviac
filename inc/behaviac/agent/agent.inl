@@ -23,14 +23,14 @@ namespace behaviac
 
 
     template<typename TAGENT>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::GetAgentInstance(const char* agentInstanceName, int contextId, bool& bToBind)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::GetAgentInstance(const char* agentInstanceName, Context* pctx, bool& bToBind)
     {
         TAGENT* pA = 0;
         bToBind = false;
 
-        if (Agent::IsInstanceNameRegistered(agentInstanceName))
+        if (pctx && Agent::IsInstanceNameRegistered(agentInstanceName))
         {
-            Context& c = Context::GetContext(contextId);
+			Context& c = *pctx; // Context::GetContext(contextId);
 
             Agent* a = c.GetInstance(agentInstanceName);
 
@@ -49,15 +49,16 @@ namespace behaviac
         return pA;
     }
 
-    BEHAVIAC_FORCEINLINE void Agent::InitAgent(Agent* pAgent, const char* agentInstanceName, const char* agentInstanceNameAny, bool bToBind, int contextId, short priority)
+    BEHAVIAC_FORCEINLINE void Agent::InitAgent(Agent* pAgent, const char* agentInstanceName, const char* agentInstanceNameAny, bool bToBind, Context* pctx, short priority)
     {
+		BEHAVIAC_ASSERT(pctx);
         const char* szAgentInstanceName = (agentInstanceName || bToBind) ? agentInstanceNameAny : agentInstanceName;
 
-        Init_(contextId, pAgent, priority, szAgentInstanceName);
+        Init_(pctx, pAgent, priority, szAgentInstanceName);
 
         if (bToBind)
         {
-            Context& c = Context::GetContext(contextId);
+			Context& c = *pctx; // Context::GetContext(contextId);
             c.BindInstance(agentInstanceNameAny, pAgent);
         }
     }
@@ -65,8 +66,9 @@ namespace behaviac
 	BEHAVIAC_API bool TryStart();
 
     template<typename TAGENT>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(const char* agentInstanceName, int contextId, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(Context* pctx, const char* agentInstanceName, short priority)
     {
+		BEHAVIAC_ASSERT(pctx);
         const char* agentInstanceNameAny = agentInstanceName;
         if (StringUtils::IsNullOrEmpty(agentInstanceName))
         {
@@ -76,7 +78,7 @@ namespace behaviac
 		TryStart();
 
         bool bToBind = false;
-        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, contextId, bToBind);
+        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, pctx, bToBind);
 
         if (pA == 0)
         {
@@ -85,15 +87,16 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, contextId, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
         }
 
         return pA;
     }
 
     template<typename TAGENT, typename T1>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, const char* agentInstanceName, int contextId, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, Context* pctx, const char* agentInstanceName, short priority)
     {
+		BEHAVIAC_ASSERT(pctx);
         const char* agentInstanceNameAny = agentInstanceName;
         if (StringUtils::IsNullOrEmpty(agentInstanceName))
         {
@@ -101,7 +104,7 @@ namespace behaviac
         }
 
         bool bToBind = false;
-        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, contextId, bToBind);
+        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, pctx, bToBind);
 
         if (pA == 0)
         {
@@ -110,15 +113,16 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, contextId, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
         }
 
         return pA;
     }
 
     template<typename TAGENT, typename T1, typename T2>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, const char* agentInstanceName, int contextId, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, Context* pctx, const char* agentInstanceName, short priority)
     {
+		BEHAVIAC_ASSERT(pctx);
         const char* agentInstanceNameAny = agentInstanceName;
         if (StringUtils::IsNullOrEmpty(agentInstanceName))
         {
@@ -126,7 +130,7 @@ namespace behaviac
         }
 
         bool bToBind = false;
-        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, contextId, bToBind);
+        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, pctx, bToBind);
 
         if (pA == 0)
         {
@@ -135,23 +139,24 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, contextId, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
         }
 
         return pA;
     }
 
     template<typename TAGENT, typename T1, typename T2, typename T3>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, T3 p3, const char* agentInstanceName, int contextId, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, T3 p3, Context* pctx, const char* agentInstanceName, short priority)
     {
-        const char* agentInstanceNameAny = agentInstanceName;
+		BEHAVIAC_ASSERT(pctx);
+		const char* agentInstanceNameAny = agentInstanceName;
         if (StringUtils::IsNullOrEmpty(agentInstanceName))
         {
             agentInstanceNameAny = TAGENT::GetClassTypeName();
         }
 
         bool bToBind = false;
-        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, contextId, bToBind);
+        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, pctx, bToBind);
 
         if (pA == 0)
         {
@@ -160,23 +165,24 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, contextId, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
         }
 
         return pA;
     }
 
     template<typename TAGENT, typename T1, typename T2, typename T3, typename T4>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, T3 p3, T4 p4, const char* agentInstanceName, int contextId, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, T3 p3, T4 p4, Context* pctx, const char* agentInstanceName, short priority)
     {
-        const char* agentInstanceNameAny = agentInstanceName;
+		BEHAVIAC_ASSERT(pctx);
+		const char* agentInstanceNameAny = agentInstanceName;
         if (StringUtils::IsNullOrEmpty(agentInstanceName))
         {
             agentInstanceNameAny = TAGENT::GetClassTypeName();
         }
 
         bool bToBind = false;
-        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, contextId, bToBind);
+        TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, pctx, bToBind);
 
         if (pA == 0)
         {
@@ -185,7 +191,7 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, contextId, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
         }
 
         return pA;
@@ -197,8 +203,9 @@ namespace behaviac
         {
             const char* agentInstanceNameAny = pAgent->GetName().c_str();
 
-            int contextId = pAgent->GetContextId();
-            Context& c = Context::GetContext(contextId);
+            // int contextId = pAgent->GetContextId();
+			Context* pctx = pAgent->GetCtxPtr();
+			Context& c = *pctx; // Context::GetContext(contextId);
             Agent* a = c.GetInstance(agentInstanceNameAny);
 
             if (a && a == pAgent)
@@ -212,7 +219,7 @@ namespace behaviac
     }
 
     template<typename TAGENT>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::GetInstance(const char* agentInstanceName, int contextId)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::GetInstance(const char* agentInstanceName, Context* pctx)
     {
         const char* agentInstanceNameAny = agentInstanceName;
 
@@ -221,7 +228,7 @@ namespace behaviac
             agentInstanceNameAny = TAGENT::GetClassTypeName();
         }
 
-        Agent* a = Agent::GetInstance(agentInstanceNameAny, contextId);
+        Agent* a = Agent::GetInstance(agentInstanceNameAny, pctx);
 
         BEHAVIAC_ASSERT(!a || TAGENT::DynamicCast(a));
         TAGENT* pA = (TAGENT*)a;

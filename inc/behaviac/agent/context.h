@@ -54,6 +54,7 @@ namespace behaviac {
         void RemoveAgent(Agent* pAgent);
 
         bool IsExecuting();
+		int GetContextId() const { return m_context_id; }
 
         /**
         to cleanup the specified context.
@@ -120,7 +121,8 @@ namespace behaviac {
             }
         };
 
-    protected:
+	public:
+    //protected:
         Context(int contextId);
 
         void CleanupStaticVariables();
