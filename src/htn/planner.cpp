@@ -144,7 +144,7 @@ namespace behaviac {
             behaviac::string agentInstanceName(a->GetName());
 
             behaviac::string ni = BehaviorTask::GetTickInfo(a, root, "plan");
-            int count = Workspace::GetInstance()->GetActionCount(ni.c_str()) + 1;
+            int count = a->GetWorkspace()->GetActionCount(ni.c_str()) + 1;
             char temp[1024];
             string_sprintf(temp, "[plan_begin]%s#%s %s %d\n", agentClassName.c_str(), agentInstanceName.c_str(), ni.c_str(), count);
 

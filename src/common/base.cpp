@@ -100,7 +100,7 @@ namespace behaviac {
             //ComparerRegister::Cleanup();
             ComputerRegister::Cleanup();
 
-            Context::Cleanup();
+            Context::Cleanup(Workspace::GetInstance());
 
             //AgentProperties::Cleanup();
             AgentMeta::UnRegister();

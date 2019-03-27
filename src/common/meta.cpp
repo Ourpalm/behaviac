@@ -678,10 +678,12 @@ namespace behaviac {
     }
 
     void AgentMeta::LoadAllMetaFiles() {
-        string metaFolder = StringUtils::CombineDir(Workspace::GetInstance()->GetFilePath(), "meta");
+		Workspace* workspace = Workspace::GetInstance();
 
-        if (Workspace::GetInstance()->GetMetaFile_()) {
-			string filename = StringUtils::CombineDir(metaFolder.c_str(), Workspace::GetInstance()->GetMetaFile_());
+        string metaFolder = StringUtils::CombineDir(workspace->GetFilePath(), "meta");
+
+        if (workspace->GetMetaFile_()) {
+			string filename = StringUtils::CombineDir(metaFolder.c_str(), workspace->GetMetaFile_());
 			size_t index = filename.find(".meta");
 
 			if (index == (size_t)-1) {
@@ -690,7 +692,7 @@ namespace behaviac {
 
             LoadMeta(filename);
         } else {
-            const char* ext = (Workspace::GetInstance()->GetFileFormat() == Workspace::EFF_bson) ? ".bson.bytes" : ".xml";
+            const char* ext = (workspace->GetFileFormat() == Workspace::EFF_bson) ? ".bson.bytes" : ".xml";
             vector<string> allFiles;
             CFileSystem::ListFiles(allFiles, metaFolder.c_str(), false);
 
@@ -714,21 +716,22 @@ namespace behaviac {
         //generally, you need to derive Workspace and override GetFilePath and GetFileFormat,
         //then, instantiate your derived Workspace at the very beginning
 
-        bool bLoadResult = false;
-        Workspace::EFileFormat f = Workspace::GetInstance()->GetFileFormat();
+		Workspace* workspace = Workspace::GetInstance();
+		bool bLoadResult = false;
+        Workspace::EFileFormat f = workspace->GetFileFormat();
         string ext = "";
 
-        Workspace::GetInstance()->HandleFileFormat(metaFile, ext, f);
+		workspace->HandleFileFormat(metaFile, ext, f);
 
         switch (f) {
             case Workspace::EFF_bson: {
                 uint32_t bufferSize = 0;
-                char* pBuffer = Workspace::GetInstance()->ReadFileToBuffer(metaFile.c_str(), ext.c_str(), bufferSize);
+                char* pBuffer = workspace->ReadFileToBuffer(metaFile.c_str(), ext.c_str(), bufferSize);
 
                 if (pBuffer != NULL) {
                     bLoadResult = load_bson(pBuffer);
 
-                    Workspace::GetInstance()->PopFileFromBuffer(metaFile.c_str(), ext.c_str(), pBuffer, bufferSize);
+					workspace->PopFileFromBuffer(metaFile.c_str(), ext.c_str(), pBuffer, bufferSize);
                 } else {
                     BEHAVIAC_ASSERT(false);
                 }
@@ -738,12 +741,12 @@ namespace behaviac {
             //case Workspace::EFF_xml:
             default: {
                 uint32_t bufferSize = 0;
-                char* pBuffer = Workspace::GetInstance()->ReadFileToBuffer(metaFile.c_str(), ext.c_str(), bufferSize);
+                char* pBuffer = workspace->ReadFileToBuffer(metaFile.c_str(), ext.c_str(), bufferSize);
 
                 if (pBuffer != NULL) {
                     bLoadResult = load_xml(pBuffer);
 
-                    Workspace::GetInstance()->PopFileFromBuffer(metaFile.c_str(), ext.c_str(), pBuffer, bufferSize);
+					workspace->PopFileFromBuffer(metaFile.c_str(), ext.c_str(), pBuffer, bufferSize);
                 } else {
                     BEHAVIAC_LOGERROR("'%s%s' doesn't exist! Please check the file name or override Workspace and its GetFilePath()\n", metaFile.c_str(), ext.c_str());
                     BEHAVIAC_ASSERT(false);

@@ -34,6 +34,7 @@ namespace behaviac {
     class IProperty;
     class IValue;
 	class Context;
+	class Workspace;
 
     /*! \addtogroup Agent
      * @{
@@ -182,12 +183,15 @@ namespace behaviac {
 
         void SetName(const char* instanceName);
 
-        int GetContextId() const {
+        inline int GetContextId() const {
             return this->m_context_id;
         }
-		Context* GetCtxPtr() const { return _context; }
-		Context* GetCtxPtr() { return _context; }
+		Context* GetCtxPtr() const { return m_context; }
+		Context* GetCtxPtr() { return m_context; }
 
+		inline Workspace* GetWorkspace() const {
+			return this->m_workspace;
+		}
         /**
         return if the agent is active or not.
 
@@ -370,19 +374,19 @@ namespace behaviac {
         @sa Destroy
         */
         template<typename TAGENT>
-        static TAGENT* Create(Context* pctx, const char* agentInstanceName = 0, short priority = 0);
+        static TAGENT* Create(Workspace* workspace, Context* pctx, const char* agentInstanceName = 0, short priority = 0);
 
         template<typename TAGENT, typename T1>
-        static TAGENT* Create(T1 p1, Context* pctx, const char* agentInstanceName, short priority);
+        static TAGENT* Create(T1 p1, Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority);
 
         template<typename TAGENT, typename T1, typename T2>
-        static TAGENT* Create(T1 p1, T2 p2, Context* pctx, const char* agentInstanceName, short priority);
+        static TAGENT* Create(T1 p1, T2 p2, Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority);
 
         template<typename TAGENT, typename T1, typename T2, typename T3>
-        static TAGENT* Create(T1 p1, T2 p2, T3 p3, Context* pctx, const char* agentInstanceName, short priority);
+        static TAGENT* Create(T1 p1, T2 p2, T3 p3, Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority);
 
         template<typename TAGENT, typename T1, typename T2, typename T3, typename T4>
-        static TAGENT* Create(T1 p1, T2 p2, T3 p3, T4 p4, Context* pctx, const char* agentInstanceName, short priority);
+        static TAGENT* Create(T1 p1, T2 p2, T3 p3, T4 p4, Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority);
 
         /**
         destroy the agent created by 'Create'
@@ -461,7 +465,7 @@ namespace behaviac {
         template<typename TAGENT>
         static TAGENT* GetAgentInstance(const char* agentInstanceName, Context* pctx, bool& bToBind);
 
-        static void InitAgent(Agent* pAgent, const char* agentInstanceName, const char* agentInstanceNameAny, bool bToBind, Context* pctx, short priority);
+        static void InitAgent(Agent* pAgent, const char* agentInstanceName, const char* agentInstanceNameAny, bool bToBind, Workspace* workspace, Context* pctx, short priority);
 
         static CFactory<Agent>* ms_factory;
         static CFactory<Agent>& Factory();
@@ -477,7 +481,7 @@ namespace behaviac {
 
         higher priority are ticked earlier
         */
-        static void Init_(Context* pctx, Agent* pAgent, short priority, const char* agentInstanceName);
+        static void Init_(Workspace* workspace, Context* pctx, Agent* pAgent, short priority, const char* agentInstanceName);
 
         EBTStatus btexec_();
 
@@ -554,8 +558,6 @@ namespace behaviac {
         static AgentNames_t*	NamesPtr();
         static AgentNames_t&	Names();
 
-        static int					ms_agent_index;
-
         typedef behaviac::map<behaviac::string, uint32_t> AgentTypeIndexMap_t;
         static AgentTypeIndexMap_t*	ms_agent_type_index;
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -605,7 +607,8 @@ namespace behaviac {
         uint32_t					m_idFlag;
         int                         m_planningTop;
         static uint32_t				ms_idMask;
-		Context* _context;
+		Context*					m_context;
+		Workspace*					m_workspace;
     };
     /*! @} */
     /*! @} */

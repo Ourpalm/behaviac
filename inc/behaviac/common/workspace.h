@@ -21,6 +21,10 @@
 #include "behaviac/common/logger/logmanager.h"
 
 namespace behaviac {
+
+	class Context;
+	typedef behaviac::map<int, Context*> Contexts_t;
+
     class BEHAVIAC_API Config {
     private:
         static const bool ms_bIsDesktopPlatform;
@@ -131,11 +135,17 @@ namespace behaviac {
         /**
         version_str is used to make sure the lib compiling defines are the same with app's
         just use this default param and don't provode any param unless you know what you are doing
+		const char* version_str = BEHAVIAC_BUILD_CONFIG_STR
         */
-        static Workspace* GetInstance(const char* version_str = BEHAVIAC_BUILD_CONFIG_STR);
+        static Workspace* GetInstance();
+		static void SetInstance(Workspace* workspace);
 
         void SetUseIntValue(bool bUseIntValue);
         bool GetUseIntValue();
+
+		int AllocAgentId() {
+			return ++this->m_lastAgentId;
+		}
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         /**
@@ -271,8 +281,9 @@ namespace behaviac {
     protected:
         Workspace();
         virtual ~Workspace();
-
     private:
+		friend class Context;
+
         bool LoadWorkspaceSetting(const char* file, behaviac::string& workspaceFile);
         bool LoadWorkspaceFile(const char* file);
 
@@ -335,8 +346,6 @@ namespace behaviac {
         char					m_szWorkspaceExportPath[kMaxPath];
         const char*				m_szMetaFile;
 
-        static Workspace*		ms_instance;
-
         bool					m_bInited;
         bool					m_bExecAgents;
 
@@ -377,7 +386,9 @@ namespace behaviac {
         FileBuffer_t m_fileBuffers[kFileBuffers];
 
         int m_frame;
+		int m_lastAgentId;
 
+		Contexts_t* m_contexts;
     protected:
         bool m_useIntValue;
         double m_doubleValueSinceStartup;

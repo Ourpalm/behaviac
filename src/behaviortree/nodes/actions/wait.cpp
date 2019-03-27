@@ -163,17 +163,17 @@ namespace behaviac {
     bool WaitTask::onenter(Agent* pAgent) {
         BEHAVIAC_UNUSED_VAR(pAgent);
 
-        bool bUseIntValue = Workspace::GetInstance()->GetUseIntValue();
+        bool bUseIntValue = pAgent->GetWorkspace()->GetUseIntValue();
 
         if (bUseIntValue) {
-            this->m_intStart = Workspace::GetInstance()->GetIntValueSinceStartup();
+            this->m_intStart = pAgent->GetWorkspace()->GetIntValueSinceStartup();
             this->m_intTime = this->GetIntTime(pAgent);
 
             if (this->m_intTime <= 0) {
                 return false;
             }
         } else {
-            this->m_start = Workspace::GetInstance()->GetDoubleValueSinceStartup();
+            this->m_start = pAgent->GetWorkspace()->GetDoubleValueSinceStartup();
             this->m_time = this->GetTime(pAgent);
 
             if (this->m_time <= 0) {
@@ -193,16 +193,16 @@ namespace behaviac {
         BEHAVIAC_UNUSED_VAR(pAgent);
         BEHAVIAC_UNUSED_VAR(childStatus);
 
-        bool bUseIntValue = Workspace::GetInstance()->GetUseIntValue();
+        bool bUseIntValue = pAgent->GetWorkspace()->GetUseIntValue();
 
         if (bUseIntValue) {
-            long long time = Workspace::GetInstance()->GetIntValueSinceStartup();
+            long long time = pAgent->GetWorkspace()->GetIntValueSinceStartup();
 
             if (time - this->m_intStart >= this->m_intTime) {
                 return BT_SUCCESS;
             }
         } else {
-            double time = Workspace::GetInstance()->GetDoubleValueSinceStartup();
+            double time = pAgent->GetWorkspace()->GetDoubleValueSinceStartup();
 
             if (time - this->m_start >= this->m_time) {
                 return BT_SUCCESS;

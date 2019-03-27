@@ -136,6 +136,8 @@ namespace behaviac {
         BEHAVIAC_UNUSED_VAR(actionResult);
         BEHAVIAC_UNUSED_VAR(mode);
 
+		auto workspace = Workspace::GetInstance();
+
         if (Config::IsLoggingOrSocketing()) {
             //BEHAVIAC_PROFILE("LogManager::LogAction");
 
@@ -165,7 +167,7 @@ namespace behaviac {
 
                     if (mode == behaviac::ELM_continue) {
                         //[continue]Ship::Ship_1 ships\suicide.xml->BehaviorTreeTask[0]:enter [all/success/failure] [1]
-                        int count = Workspace::GetInstance()->GetActionCount(btMsg);
+                        int count = workspace->GetActionCount(btMsg);
                         BEHAVIAC_ASSERT(count > 0);
 
                         char buffer[1024];
@@ -175,7 +177,7 @@ namespace behaviac {
                         Socket::SendText(buffer);
                     } else if (mode == behaviac::ELM_breaked) {
                         //[breaked]Ship::Ship_1 ships\suicide.xml->BehaviorTreeTask[0]:enter [all/success/failure] [1]
-                        int count = Workspace::GetInstance()->GetActionCount(btMsg);
+                        int count = workspace->GetActionCount(btMsg);
                         BEHAVIAC_ASSERT(count > 0);
                         char buffer[1024];
                         string_sprintf(buffer, "[breaked]%s %s [%s] [%d]\n", agentName.c_str(), btMsg, actionResultStr, count);
@@ -187,7 +189,7 @@ namespace behaviac {
                         //[tick]Ship::Ship_1 ships\suicide.xml->BehaviorTreeTask[0]:update [1]
                         //[tick]Ship::Ship_1 ships\suicide.xml->Selector[1]:enter [all/success/failure] [1]
                         //[tick]Ship::Ship_1 ships\suicide.xml->Selector[1]:update [1]
-                        int count = Workspace::GetInstance()->UpdateActionCount(btMsg);
+                        int count = workspace->UpdateActionCount(btMsg);
 						BEHAVIAC_UNUSED_VAR(count);
 
 						if (!StringUtils::Compare(actionResultStr, "running"))

@@ -114,7 +114,7 @@ namespace behaviac {
 
         this->m_nextStateId = -1;
 
-        this->m_start = Workspace::GetInstance()->GetFrameSinceStartup();
+        this->m_start = pAgent->GetWorkspace()->GetFrameSinceStartup();
         this->m_frames = this->GetFrames(pAgent);
 
         if (this->m_frames <= 0) {
@@ -133,7 +133,7 @@ namespace behaviac {
         BEHAVIAC_UNUSED_VAR(pAgent);
         BEHAVIAC_UNUSED_VAR(childStatus);
 
-        if (Workspace::GetInstance()->GetFrameSinceStartup() - this->m_start + 1 >= this->m_frames) {
+        if (pAgent->GetWorkspace()->GetFrameSinceStartup() - this->m_start + 1 >= this->m_frames) {
             BEHAVIAC_ASSERT(WaitFramesState::DynamicCast(this->GetNode()) != 0, "node is not an WaitFramesState");
             WaitFramesState* pStateNode = (WaitFramesState*)(this->GetNode());
 

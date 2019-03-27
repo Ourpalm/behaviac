@@ -49,12 +49,12 @@ namespace behaviac
         return pA;
     }
 
-    BEHAVIAC_FORCEINLINE void Agent::InitAgent(Agent* pAgent, const char* agentInstanceName, const char* agentInstanceNameAny, bool bToBind, Context* pctx, short priority)
+    BEHAVIAC_FORCEINLINE void Agent::InitAgent(Agent* pAgent, const char* agentInstanceName, const char* agentInstanceNameAny, bool bToBind, Workspace* workspace, Context* pctx, short priority)
     {
 		BEHAVIAC_ASSERT(pctx);
         const char* szAgentInstanceName = (agentInstanceName || bToBind) ? agentInstanceNameAny : agentInstanceName;
 
-        Init_(pctx, pAgent, priority, szAgentInstanceName);
+        Init_(workspace, pctx, pAgent, priority, szAgentInstanceName);
 
         if (bToBind)
         {
@@ -66,7 +66,7 @@ namespace behaviac
 	BEHAVIAC_API bool TryStart();
 
     template<typename TAGENT>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(Context* pctx, const char* agentInstanceName, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority)
     {
 		BEHAVIAC_ASSERT(pctx);
         const char* agentInstanceNameAny = agentInstanceName;
@@ -87,14 +87,14 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, workspace, pctx, priority);
         }
 
         return pA;
     }
 
     template<typename TAGENT, typename T1>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, Context* pctx, const char* agentInstanceName, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority)
     {
 		BEHAVIAC_ASSERT(pctx);
         const char* agentInstanceNameAny = agentInstanceName;
@@ -113,14 +113,14 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, workspace, pctx, priority);
         }
 
         return pA;
     }
 
     template<typename TAGENT, typename T1, typename T2>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, Context* pctx, const char* agentInstanceName, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority)
     {
 		BEHAVIAC_ASSERT(pctx);
         const char* agentInstanceNameAny = agentInstanceName;
@@ -139,14 +139,14 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, workspace, pctx, priority);
         }
 
         return pA;
     }
 
     template<typename TAGENT, typename T1, typename T2, typename T3>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, T3 p3, Context* pctx, const char* agentInstanceName, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, T3 p3, Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority)
     {
 		BEHAVIAC_ASSERT(pctx);
 		const char* agentInstanceNameAny = agentInstanceName;
@@ -165,14 +165,14 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, workspace, pctx, priority);
         }
 
         return pA;
     }
 
     template<typename TAGENT, typename T1, typename T2, typename T3, typename T4>
-    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, T3 p3, T4 p4, Context* pctx, const char* agentInstanceName, short priority)
+    BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(T1 p1, T2 p2, T3 p3, T4 p4, Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority)
     {
 		BEHAVIAC_ASSERT(pctx);
 		const char* agentInstanceNameAny = agentInstanceName;
@@ -191,7 +191,7 @@ namespace behaviac
             BEHAVIAC_ASSERT(TAGENT::DynamicCast(pAgent));
 
             pA = (TAGENT*)pAgent;
-            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, pctx, priority);
+            InitAgent(pA, agentInstanceName, agentInstanceNameAny, bToBind, workspace, pctx, priority);
         }
 
         return pA;

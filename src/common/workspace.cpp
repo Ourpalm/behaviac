@@ -177,11 +177,12 @@ namespace behaviac {
         void SendWorkspaceSettings();
     }
 
-    Workspace* Workspace::ms_instance = 0;
+	thread_local Workspace*	 ms_instance = 0;
 
     Workspace::Workspace() : m_bInited(false), m_bExecAgents(true), m_fileFormat(Workspace::EFF_xml),
         m_pBehaviorNodeLoader(0), m_behaviortreeCreators(0),
-        m_frame(0), m_useIntValue(false), m_doubleValueSinceStartup(-1), m_intValueSinceStartup(-1), m_frameSinceStartup(-1) {
+        m_frame(0), m_useIntValue(false), m_doubleValueSinceStartup(-1), m_intValueSinceStartup(-1)
+		, m_frameSinceStartup(-1), m_lastAgentId(0) {
 #if BEHAVIAC_ENABLE_HOTRELOAD
         m_allBehaviorTreeTasks = 0;
 #endif//BEHAVIAC_ENABLE_HOTRELOAD
@@ -189,16 +190,15 @@ namespace behaviac {
         string_cpy(m_szWorkspaceExportPath, "./behaviac/workspace/exported/");
 
         m_szMetaFile = 0;
-
-        BEHAVIAC_ASSERT(ms_instance == 0);
-        ms_instance = this;
     }
 
     Workspace::~Workspace() {
-        ms_instance = 0;
+		Context::Cleanup(this);
     }
 
-    Workspace* Workspace::GetInstance(const char* version_str) {
+    Workspace* Workspace::GetInstance() {
+		return  ms_instance;
+/*
         if (ms_instance == NULL) {
             if (version_str && !StringUtils::StringEqual(version_str, BEHAVIAC_BUILD_CONFIG_STR)) {
                 BEHAVIAC_LOGERROR("lib is built with '%s', while the executable is built with '%s'! please use the same define for '_DEBUG' and 'BEHAVIAC_RELEASE' in both the lib and executable's make.\n", BEHAVIAC_BUILD_CONFIG_STR, version_str);
@@ -213,7 +213,12 @@ namespace behaviac {
         }
 
         return ms_instance;
+*/
     }
+
+	void Workspace::SetInstance(Workspace* workspace) {
+		ms_instance = workspace;
+	}
 
     bool Workspace::LoadWorkspaceSetting(const char* file, behaviac::string& workspaceRootPath) {
         uint32_t bufferSize = 0;
@@ -630,13 +635,13 @@ namespace behaviac {
         if (this->m_bExecAgents) {
             int contextId = -1;
 
-            Context::execAgents(contextId);
+            Context::execAgents(this, contextId);
         }
     }
 
     void Workspace::LogCurrentStates() {
         int contextId = -1;
-        Context::LogCurrentStates(contextId);
+        Context::LogCurrentStates(this, contextId);
     }
 
     bool IsValidPath(const char* relativePath) {

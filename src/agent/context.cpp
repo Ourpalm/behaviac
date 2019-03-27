@@ -19,9 +19,8 @@
 #include "behaviac/common/file/filesystem.h"
 
 namespace behaviac {
-    Context::Contexts_t* Context::ms_contexts = NULL;
 
-    Context::Context(int contextId) : m_context_id(contextId), m_bCreatedByMe(false), m_IsExecuting(false) {
+    Context::Context(int contextId) : m_context_id(contextId), m_bCreatedByMe(false), m_IsExecuting(false), m_workspace(0) {
     }
 
     Context::~Context() {
@@ -38,46 +37,49 @@ namespace behaviac {
         this->CleanupInstances();
     }
 
-    Context& Context::GetContext(int contextId) {
-        if (!ms_contexts) {
-            ms_contexts = BEHAVIAC_NEW Contexts_t;
+    Context& Context::GetContext(Workspace* workspace, int contextId) {
+        if (workspace->m_contexts) {
+			workspace->m_contexts = BEHAVIAC_NEW Contexts_t;
         }
 
         BEHAVIAC_ASSERT(contextId >= 0);
-        Contexts_t::iterator it = ms_contexts->find(contextId);
+        Contexts_t::iterator it = workspace->m_contexts->find(contextId);
 
-        if (it != ms_contexts->end()) {
+        if (it != workspace->m_contexts->end()) {
             Context* pContext = it->second;
             return *pContext;
         }
 
         Context* pContext = BEHAVIAC_NEW Context(contextId);
-        (*ms_contexts)[contextId] = pContext;
+		pContext->m_workspace = workspace;
+        (*workspace->m_contexts)[contextId] = pContext;
 
         return *pContext;
     }
 
-    void Context::Cleanup(int contextId) {
-        if (ms_contexts) {
+    void Context::Cleanup(Workspace* workspace, int contextId) {
+		if (workspace == NULL)
+			return;
+        if (workspace->m_contexts) {
             if (contextId == -1) {
-                for (Contexts_t::iterator it = ms_contexts->begin(); it != ms_contexts->end(); ++it) {
+                for (Contexts_t::iterator it = workspace->m_contexts->begin(); it != workspace->m_contexts->end(); ++it) {
                     Context* pContext = it->second;
 
                     BEHAVIAC_DELETE(pContext);
                 }
 
-                ms_contexts->clear();
+				workspace->m_contexts->clear();
 
-                BEHAVIAC_DELETE(ms_contexts);
-                ms_contexts = 0;
+                BEHAVIAC_DELETE(workspace->m_contexts);
+				workspace->m_contexts = 0;
             } else {
-                Contexts_t::iterator it = ms_contexts->find(contextId);
+                Contexts_t::iterator it = workspace->m_contexts->find(contextId);
 
-                if (it != ms_contexts->end()) {
+                if (it != workspace->m_contexts->end()) {
                     Context* pContext = it->second;
 
                     BEHAVIAC_DELETE(pContext);
-                    ms_contexts->erase(contextId);
+					workspace->m_contexts->erase(contextId);
                 } else {
                     BEHAVIAC_ASSERT(false, "unused context id");
                 }
@@ -302,13 +304,13 @@ namespace behaviac {
         }
     }
 
-    void Context::execAgents(int contextId) {
+    void Context::execAgents(Workspace* workspace, int contextId) {
         if (contextId >= 0) {
-            Context& pContext = Context::GetContext(contextId);
+            Context& pContext = Context::GetContext(workspace, contextId);
 
             pContext.execAgents_();
-        } else if (ms_contexts != NULL) {
-            for (Contexts_t::iterator it = ms_contexts->begin(); it != ms_contexts->end(); ++it) {
+        } else if (workspace->m_contexts != NULL) {
+            for (Contexts_t::iterator it = workspace->m_contexts->begin(); it != workspace->m_contexts->end(); ++it) {
                 Context* pContext = it->second;
 
                 pContext->execAgents_();
@@ -317,7 +319,7 @@ namespace behaviac {
     }
 
     void Context::execAgents_() {
-        if (!Workspace::GetInstance()->IsExecAgents()) {
+        if (!m_workspace->IsExecAgents()) {
             return;
         }
 
@@ -336,7 +338,7 @@ namespace behaviac {
                 }
 
                 // in case IsExecAgents was set to false by pA's bt
-                if (!Workspace::GetInstance()->IsExecAgents()) {
+                if (!m_workspace->IsExecAgents()) {
                     break;
                 }
             }
@@ -376,13 +378,13 @@ namespace behaviac {
         }
     }
 
-    void Context::LogCurrentStates(int contextId) {
-        if (ms_contexts != NULL) {
+    void Context::LogCurrentStates(Workspace* workspace, int contextId) {
+        if (workspace->m_contexts != NULL) {
             if (contextId >= 0) {
-                Context& pContext = Context::GetContext(contextId);
+                Context& pContext = Context::GetContext(workspace, contextId);
                 pContext.LogCurrentState();
             } else {
-                for (Contexts_t::iterator pContext = ms_contexts->begin(); pContext != ms_contexts->end(); ++pContext) {
+                for (Contexts_t::iterator pContext = workspace->m_contexts->begin(); pContext != workspace->m_contexts->end(); ++pContext) {
                     pContext->second->LogCurrentState();
                 }
             }

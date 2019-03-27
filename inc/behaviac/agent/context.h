@@ -40,15 +40,12 @@ namespace behaviac {
     */
     class BEHAVIAC_API Context {
     private:
-        typedef behaviac::map<int, Context*> Contexts_t;
-
-        static Contexts_t* ms_contexts;
 
         void LogCurrentState();
 
     public:
-        static void execAgents(int contextId);
-        static Context& GetContext(int contextId);
+        static void execAgents(Workspace* workspace, int contextId);
+        static Context& GetContext(Workspace* workspace, int contextId);
 
         void AddAgent(Agent* pAgent);
         void RemoveAgent(Agent* pAgent);
@@ -61,9 +58,9 @@ namespace behaviac {
 
         by default, contextId = -1, it cleans up all the contexts
         */
-        static void Cleanup(int contextId = -1);
+        static void Cleanup(Workspace* workspace, int contextId = -1);
 
-        static void LogCurrentStates(int contextId);
+        static void LogCurrentStates(Workspace* workspace, int contextId);
 
         virtual ~Context();
 
@@ -147,6 +144,7 @@ namespace behaviac {
         int     m_context_id;
         bool    m_bCreatedByMe;
         bool	m_IsExecuting;
+		Workspace* m_workspace;
     };
     /*! @} */
     /*! @} */

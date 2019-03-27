@@ -53,7 +53,6 @@ namespace behaviac {
         Agent::ms_idMask = idMask;
     }
 
-    int Agent::ms_agent_index = 0;
     CFactory<Agent>* Agent::ms_factory;
 
     Agent::AgentNames_t* Agent::ms_names;
@@ -81,7 +80,7 @@ namespace behaviac {
     }
 
     //m_id == -1, not a valid agent
-    Agent::Agent() : m_context_id(-1), m_currentBT(0), m_id(-1), m_priority(0), m_bActive(1), m_referencetree(false), _balckboard_bound(false), m_excutingTreeTask(0), m_variables(0), m_idFlag(0xffffffff), m_planningTop(-1), _context(NULL) {
+    Agent::Agent() : m_context_id(-1), m_currentBT(0), m_id(-1), m_priority(0), m_bActive(1), m_referencetree(false), _balckboard_bound(false), m_excutingTreeTask(0), m_variables(0), m_idFlag(0xffffffff), m_planningTop(-1), m_context(NULL), m_workspace(NULL) {
         bool bOk = TryStart();
         BEHAVIAC_ASSERT(bOk);
         BEHAVIAC_UNUSED_VAR(bOk);
@@ -169,7 +168,7 @@ namespace behaviac {
         for (BehaviorTreeTasks_t::iterator it = this->m_behaviorTreeTasks.begin(); it != m_behaviorTreeTasks.end(); ++it) {
             BehaviorTreeTask* bt = *it;
 
-            Workspace::GetInstance()->DestroyBehaviorTreeTask(bt, this);
+            m_workspace->DestroyBehaviorTreeTask(bt, this);
         }
 
         this->m_behaviorTreeTasks.clear();
@@ -216,7 +215,7 @@ namespace behaviac {
         }
     }
 
-    void Agent::Init_(Context* pctx, Agent* pAgent, short priority, const char* agentInstanceName) {
+    void Agent::Init_(Workspace* workspace, Context* pctx, Agent* pAgent, short priority, const char* agentInstanceName) {
 #if !BEHAVIAC_RELEASE
         pAgent->m_debug_verify = kAGENT_DEBUG_VERY;
 #endif//#if !BEHAVIAC_RELEASE
@@ -224,9 +223,10 @@ namespace behaviac {
         // BEHAVIAC_ASSERT(contextId >= 0, "invalid context id");
 		BEHAVIAC_ASSERT(pctx, "invalid context ptr");
         pAgent->m_context_id = pctx->GetContextId();
-        pAgent->m_id = ms_agent_index++;
+        pAgent->m_id = workspace->AllocAgentId();
         pAgent->m_priority = priority;
-    	pAgent->_context = pctx;
+    	pAgent->m_context = pctx;
+		pAgent->m_workspace = workspace;
 
         pAgent->SetName(agentInstanceName);
         pAgent->InitVariableRegistry();
@@ -552,7 +552,7 @@ namespace behaviac {
             //	return;
             //}
 
-            bool bLoaded = Workspace::GetInstance()->Load(relativePath);
+            bool bLoaded = m_workspace->Load(relativePath);
 
             if (!bLoaded) {
                 behaviac::string agentName = this->GetClassTypeName();
@@ -562,7 +562,7 @@ namespace behaviac {
                 BEHAVIAC_ASSERT(false);
                 BEHAVIAC_LOGINFO("%s is not a valid loaded behavior tree of %s", relativePath, agentName.c_str());
             } else {
-                Workspace::GetInstance()->RecordBTAgentMapping(relativePath, this);
+				m_workspace->RecordBTAgentMapping(relativePath, this);
 
                 if (this->m_currentBT) {
                     //if trigger mode is 'return', just push the current bt 'oldBt' on the stack and do nothing more
@@ -611,7 +611,7 @@ namespace behaviac {
                 }
 
                 if (pTask == 0 || bRecursive) {
-                    pTask = Workspace::GetInstance()->CreateBehaviorTreeTask(relativePath);
+                    pTask = m_workspace->CreateBehaviorTreeTask(relativePath);
                     BEHAVIAC_ASSERT(pTask != 0);
                     this->m_behaviorTreeTasks.push_back(pTask);
                 }
@@ -765,10 +765,10 @@ namespace behaviac {
     }
 
     bool Agent::btload(const char* relativePath, bool bForce) {
-        bool bOk = Workspace::GetInstance()->Load(relativePath, bForce);
+        bool bOk = m_workspace->Load(relativePath, bForce);
 
         if (bOk) {
-            Workspace::GetInstance()->RecordBTAgentMapping(relativePath, this);
+			m_workspace->RecordBTAgentMapping(relativePath, this);
         }
 
         return bOk;
@@ -802,14 +802,14 @@ namespace behaviac {
             BehaviorTreeTask* task = *iti;
 
             if (task->GetName() == relativePath) {
-                Workspace::GetInstance()->DestroyBehaviorTreeTask(task, this);
+				m_workspace->DestroyBehaviorTreeTask(task, this);
 
                 this->m_behaviorTreeTasks.erase(iti);
                 break;
             }
         }
 
-        Workspace::GetInstance()->UnLoad(relativePath);
+		m_workspace->UnLoad(relativePath);
     }
 
     void Agent::bthotreloaded(const BehaviorTree* bt) {
@@ -854,7 +854,7 @@ namespace behaviac {
                 bts.push_back(bt);
             }
 
-            Workspace::GetInstance()->DestroyBehaviorTreeTask(btTask, this);
+			m_workspace->DestroyBehaviorTreeTask(btTask, this);
         }
 
         //for (uint32_t i = 0; i < bts.size(); ++i) {
@@ -863,7 +863,7 @@ namespace behaviac {
         //    this->btunload_pars(it);
 
         //    const behaviac::string& btName = it->GetName();
-        //    Workspace::GetInstance()->UnLoad(btName.c_str());
+        //    m_workspace->UnLoad(btName.c_str());
         //}
 
         this->m_behaviorTreeTasks.clear();
@@ -899,12 +899,12 @@ namespace behaviac {
                 bts.push_back(btName);
             }
 
-            Workspace::GetInstance()->DestroyBehaviorTreeTask(bt, this);
+			m_workspace->DestroyBehaviorTreeTask(bt, this);
         }
 
         for (unsigned int i = 0; i < bts.size(); ++i) {
             const behaviac::string& btName = bts[i];
-            Workspace::GetInstance()->Load(btName.c_str(), true);
+			m_workspace->Load(btName.c_str(), true);
         }
 
         this->m_behaviorTreeTasks.clear();
@@ -1145,7 +1145,7 @@ namespace behaviac {
         this->GetVariables()->CopyTo(0, state.m_vars);
 
         if (this->m_currentBT) {
-            Workspace::GetInstance()->DestroyBehaviorTreeTask(state.m_bt, this);
+			m_workspace->DestroyBehaviorTreeTask(state.m_bt, this);
 
             const BehaviorNode* pNode = this->m_currentBT->GetNode();
             state.m_bt = (BehaviorTreeTask*)pNode->CreateAndInitTask();
@@ -1185,7 +1185,7 @@ namespace behaviac {
                     BehaviorTreeTask* task = *iti;
 
                     if (task == this->m_currentBT) {
-                        Workspace::GetInstance()->DestroyBehaviorTreeTask(task, this);
+						m_workspace->DestroyBehaviorTreeTask(task, this);
 
                         this->m_behaviorTreeTasks.erase(iti);
                         break;
@@ -1244,8 +1244,9 @@ namespace behaviac {
 #endif//BEHAVIAC_RELEASE
 
     void Agent::LogMessage(const char* message) {
-        int frames = behaviac::Workspace::GetInstance()->GetFrameSinceStartup();
-        BEHAVIAC_LOGINFO("[%d]%s\n", frames, message);
+        //int frames = m_workspace->GetFrameSinceStartup();
+        //BEHAVIAC_LOGINFO("[%d]%s\n", frames, message);
+		BEHAVIAC_LOGINFO("%s\n", message);
     }
 
     int Agent::VectorLength(const IList& vector) {
