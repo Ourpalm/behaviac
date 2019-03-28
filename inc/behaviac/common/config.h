@@ -77,7 +77,7 @@ Please don't define BEHAVIAC_RELEASE unless you know what you are doing.
 #endif
 
 #if !BEHAVIAC_RELEASE
-#define BEHAVIAC_ENABLE_HOTRELOAD	0
+#define BEHAVIAC_ENABLE_HOTRELOAD	0 // 多线程,不再支持!!!
 #define BEHAVIAC_ENABLE_PROFILING	1
 #endif//BEHAVIAC_RELEASE
 

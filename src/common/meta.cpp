@@ -91,12 +91,12 @@ namespace behaviac {
         return m_signature;
     }
 
-    void AgentMeta::Register() {
+    void AgentMeta::Register(Workspace* workspace) {
         RegisterBasicTypes();
 
         RegisterMeta();
 
-        LoadAllMetaFiles();
+        LoadAllMetaFiles(workspace);
     }
 
     void AgentMeta::UnRegister() {
@@ -677,9 +677,8 @@ namespace behaviac {
         return params_;
     }
 
-    void AgentMeta::LoadAllMetaFiles() {
-		Workspace* workspace = Workspace::GetInstance();
-
+    void AgentMeta::LoadAllMetaFiles(Workspace* workspace) {
+		
         string metaFolder = StringUtils::CombineDir(workspace->GetFilePath(), "meta");
 
         if (workspace->GetMetaFile_()) {
@@ -690,7 +689,7 @@ namespace behaviac {
                 filename += ".meta";
             }
 
-            LoadMeta(filename);
+            LoadMeta(workspace, filename);
         } else {
             const char* ext = (workspace->GetFileFormat() == Workspace::EFF_bson) ? ".bson.bytes" : ".xml";
             vector<string> allFiles;
@@ -704,19 +703,18 @@ namespace behaviac {
                     BEHAVIAC_ASSERT(index > 0);
                     string filename = allFiles[i].substr(0, index + 5);
 
-                    LoadMeta(filename);
+                    LoadMeta(workspace, filename);
                 }
             }
         }
     }
 
-    bool AgentMeta::LoadMeta(const string& metaFile) {
+    bool AgentMeta::LoadMeta(Workspace* workspace, const string& metaFile) {
         //the workspace export path is provided by Workspace::GetFilePath
         //the file format(xml / bson) is provided by Workspace::GetFileFormat
         //generally, you need to derive Workspace and override GetFilePath and GetFileFormat,
         //then, instantiate your derived Workspace at the very beginning
 
-		Workspace* workspace = Workspace::GetInstance();
 		bool bLoadResult = false;
         Workspace::EFileFormat f = workspace->GetFileFormat();
         string ext = "";

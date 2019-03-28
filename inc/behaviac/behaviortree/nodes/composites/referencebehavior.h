@@ -63,7 +63,7 @@ namespace behaviac {
     public:
         BEHAVIAC_DECLARE_DYNAMIC_TYPE(ReferencedBehaviorTask, SingeChildTask);
 
-        ReferencedBehaviorTask();
+        ReferencedBehaviorTask(const ReferencedBehavior* node);
         ~ReferencedBehaviorTask();
 
         virtual void Init(const BehaviorNode* node);
@@ -86,6 +86,7 @@ namespace behaviac {
     private:
         int						m_nextStateId;
         BehaviorTreeTask*		m_subTree;
+		ReferencedBehavior*		m_node;
 #if BEHAVIAC_USE_HTN
         AgentState*             m_currentState;
 #endif//

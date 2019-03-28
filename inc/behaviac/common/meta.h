@@ -144,7 +144,7 @@ namespace behaviac {
         AgentMeta(unsigned int signature = 0);
         ~AgentMeta();
 
-        static void Register();
+        static void Register(Workspace* workspace);
         static void UnRegister();
         static void RegisterMeta();
         static void UnRegisterMeta();
@@ -287,8 +287,8 @@ namespace behaviac {
 
         static const char* strrchr(const char* start, const char* end, char c);
 
-        static void LoadAllMetaFiles();
-        static bool LoadMeta(const string& metaFile);
+        static void LoadAllMetaFiles(Workspace* workspace);
+        static bool LoadMeta(Workspace* workspace, const string& metaFile);
         static bool load_xml(char* pBuffer);
         static bool load_bson(const char* pBuffer);
         static bool load_agent(int version, BsonDeserizer* d);

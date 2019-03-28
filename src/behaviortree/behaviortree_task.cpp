@@ -321,7 +321,7 @@ namespace behaviac {
 
 #define _MY_BREAKPOINT_BREAK_(pAgent, btMsg, actionResult) \
     { \
-        Workspace::GetInstance()->WaitforContinue(); \
+        pAgent->GetWorkspace()->WaitforContinue();\
     }
 
     //CheckBreakpoint should be after log of onenter/onexit/update, as it needs to flush msg to the client
@@ -332,7 +332,7 @@ namespace behaviac {
             if (!bpstr.empty()) {
                 LogManager::GetInstance()->Log(pAgent, bpstr.c_str(), actionResult, ELM_tick);
 
-                if (Workspace::GetInstance()->CheckBreakpoint(pAgent, b, action, actionResult)) {
+                if (pAgent->GetWorkspace()->CheckBreakpoint(pAgent, b, action, actionResult)) {
                     //log the current variables, otherwise, its value is not the latest
                     pAgent->LogVariables(false);
                     LogManager::GetInstance()->Log(pAgent, bpstr.c_str(), actionResult, ELM_breaked);

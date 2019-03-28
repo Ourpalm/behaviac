@@ -60,7 +60,7 @@ namespace behaviac {
                     if (!StringUtils::IsNullOrEmpty(szTreePath)) {
 						if (Config::PreloadBehaviors()) {
 							//it has a const tree path, so as to load the tree and check if that tree has events
-							BehaviorTree* behaviorTree = Workspace::GetInstance()->LoadBehaviorTree(szTreePath);
+							BehaviorTree* behaviorTree = GetWorkspace()->LoadBehaviorTree(szTreePath);
 							BEHAVIAC_ASSERT(behaviorTree);
 
 							if (behaviorTree) {
@@ -96,7 +96,7 @@ namespace behaviac {
 
             Agent* pAgent = planner->GetAgent();
             const char* szTreePath = taskSubTree->GetReferencedTree(pAgent);
-            BehaviorTreeTask* subTreeTask = Workspace::GetInstance()->CreateBehaviorTreeTask(szTreePath);
+            BehaviorTreeTask* subTreeTask = GetWorkspace()->CreateBehaviorTreeTask(szTreePath);
 
             //planner.agent.Variables.Log(planner.agent, true);
             taskSubTree->SetTaskParams(planner->GetAgent(), subTreeTask);
@@ -160,7 +160,7 @@ namespace behaviac {
     }
 
     BehaviorTask* ReferencedBehavior::createTask() const {
-        ReferencedBehaviorTask* pTask = BEHAVIAC_NEW ReferencedBehaviorTask();
+        ReferencedBehaviorTask* pTask = BEHAVIAC_NEW ReferencedBehaviorTask(this);
 
         return pTask;
     }
@@ -173,7 +173,7 @@ namespace behaviac {
 
     Task* ReferencedBehavior::RootTaskNode(Agent* pAgent) {
         if (this->m_taskNode == 0) {
-            BehaviorTree* bt = Workspace::GetInstance()->LoadBehaviorTree(this->GetReferencedTree(pAgent));
+            BehaviorTree* bt = GetWorkspace()->LoadBehaviorTree(this->GetReferencedTree(pAgent));
 
             if (bt != 0 && bt->GetChildrenCount() == 1) {
                 BehaviorNode* root = (BehaviorNode*)bt->GetChild(0);
@@ -200,13 +200,14 @@ namespace behaviac {
         return NULL;
     }
 
-	ReferencedBehaviorTask::ReferencedBehaviorTask() : SingeChildTask(), m_nextStateId(-1), m_subTree(NULL) {
+	ReferencedBehaviorTask::ReferencedBehaviorTask(const ReferencedBehavior* node) : SingeChildTask(), m_nextStateId(-1), m_subTree(NULL) {
+		m_node = const_cast<ReferencedBehavior*>(node);
     }
 
     ReferencedBehaviorTask::~ReferencedBehaviorTask() {
 		if (this->m_subTree)
 		{
-			behaviac::Workspace::GetInstance()->DestroyBehaviorTreeTask(this->m_subTree, NULL);
+			m_node->GetWorkspace()->DestroyBehaviorTreeTask(this->m_subTree, NULL);
 			this->m_subTree = NULL;
 		}
     }
@@ -258,10 +259,10 @@ namespace behaviac {
 		{
 			if (this->m_subTree)
 			{
-				behaviac::Workspace::GetInstance()->DestroyBehaviorTreeTask(this->m_subTree, pAgent);
+				m_node->GetWorkspace()->DestroyBehaviorTreeTask(this->m_subTree, pAgent);
 			}
 
-			this->m_subTree = Workspace::GetInstance()->CreateBehaviorTreeTask(szTreePath);
+			this->m_subTree = m_node->GetWorkspace()->CreateBehaviorTreeTask(szTreePath);
 			pNode->SetTaskParams(pAgent, this->m_subTree);
 		}
 		else if (this->m_subTree)

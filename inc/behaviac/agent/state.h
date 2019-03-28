@@ -18,6 +18,7 @@
 #include "behaviac/property/properties.h"
 
 namespace behaviac {
+	class Workspace;
     class BehaviorTreeTask;
 
     /*! \addtogroup Agent
@@ -44,14 +45,14 @@ namespace behaviac {
 
         void Clear();
 
-        bool SaveToFile(const char* fileName, Agent* pAgent = 0) const;
-        bool LoadFromFile(const char* fileName, Agent* pAgent = 0);
+        bool SaveToFile(const char* fileName, Workspace* workspace, Agent* pAgent = 0) const;
+        bool LoadFromFile(const char* fileName, Workspace* workspace, Agent* pAgent = 0);
 
         bool SaveToFile(IFile* file, Agent* pAgent = 0) const;
         virtual bool LoadFromFile(IFile* file, Agent* pAgent = 0);
     protected:
-        XmlNodeReference SaveToXmlNode(Agent* pAgent) const;
-        void LoadFromXmlNode(CTextNode& node, Agent* pAgent);
+        XmlNodeReference SaveToXmlNode(Workspace* workspace, Agent* pAgent) const;
+        void LoadFromXmlNode(CTextNode& node, Workspace* workspace, Agent* pAgent);
 
         State_t& operator=(const State_t& c);
     };

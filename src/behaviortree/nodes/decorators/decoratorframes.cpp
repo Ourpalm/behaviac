@@ -59,12 +59,13 @@ namespace behaviac {
     }
 
     BehaviorTask* DecoratorFrames::createTask() const {
-        DecoratorFramesTask* pTask = BEHAVIAC_NEW DecoratorFramesTask();
+        DecoratorFramesTask* pTask = BEHAVIAC_NEW DecoratorFramesTask(this);
 
         return pTask;
     }
 
-    DecoratorFramesTask::DecoratorFramesTask() : DecoratorTask(), m_start(0), m_frames(0) {
+    DecoratorFramesTask::DecoratorFramesTask(const DecoratorFrames* node) : DecoratorTask(), m_start(0), m_frames(0) {
+		m_node = const_cast<DecoratorFrames*>(node);
     }
 
     DecoratorFramesTask::~DecoratorFramesTask() {
@@ -117,7 +118,7 @@ namespace behaviac {
     bool DecoratorFramesTask::onenter(Agent* pAgent) {
         super::onenter(pAgent);
 
-        this->m_start = Workspace::GetInstance()->GetFrameSinceStartup();
+        this->m_start = m_node->GetWorkspace()->GetFrameSinceStartup();
         this->m_frames = this->GetFrames(pAgent);
 
         return (this->m_frames > 0);
@@ -126,7 +127,7 @@ namespace behaviac {
     EBTStatus DecoratorFramesTask::decorate(EBTStatus status) {
         BEHAVIAC_UNUSED_VAR(status);
 
-        if (Workspace::GetInstance()->GetFrameSinceStartup() - this->m_start + 1 >= this->m_frames) {
+        if (m_node->GetWorkspace()->GetFrameSinceStartup() - this->m_start + 1 >= this->m_frames) {
             return BT_SUCCESS;
         }
 

@@ -40,7 +40,7 @@ BEHAVIAC_BEGIN_STRUCT(System::Object) {
 BEHAVIAC_END_STRUCT()
 
 namespace behaviac {
-    bool TryStart();
+    bool TryStart(Workspace* workspace);
 
     uint32_t Agent::ms_idMask = 0xffffffff;
     Agent::AgentTypeIndexMap_t* Agent::ms_agent_type_index = 0;
@@ -81,9 +81,10 @@ namespace behaviac {
 
     //m_id == -1, not a valid agent
     Agent::Agent() : m_context_id(-1), m_currentBT(0), m_id(-1), m_priority(0), m_bActive(1), m_referencetree(false), _balckboard_bound(false), m_excutingTreeTask(0), m_variables(0), m_idFlag(0xffffffff), m_planningTop(-1), m_context(NULL), m_workspace(NULL) {
-        bool bOk = TryStart();
-        BEHAVIAC_ASSERT(bOk);
-        BEHAVIAC_UNUSED_VAR(bOk);
+		// 修改到workspace中,保证先执行!
+//         bool bOk = TryStart();
+//         BEHAVIAC_ASSERT(bOk);
+//         BEHAVIAC_UNUSED_VAR(bOk);
 
 #if !BEHAVIAC_RELEASE
         this->m_debug_verify = 0;

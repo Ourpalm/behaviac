@@ -171,7 +171,7 @@ namespace behaviac {
     }
 
     void ConnectorImpl::SendInitialProperties() {
-        Workspace::GetInstance()->LogCurrentStates();
+        //Workspace::GetInstance()->LogCurrentStates();
     }
 }
 
@@ -256,6 +256,7 @@ namespace behaviac {
                     const char* platform = "Unknown Platform";
 #endif
 
+/*	¶àÏß³Ì,½ûÖ¹socket!!
                     char msg[1024];
                     string_sprintf(msg, "[platform] %s\n", platform);
                     LogManager::GetInstance()->LogWorkspace(true, msg);
@@ -265,6 +266,7 @@ namespace behaviac {
 
                     string_sprintf(msg, "[workspace] %s \"%s\"\n", formatString, "");
                     LogManager::GetInstance()->LogWorkspace(true, msg);
+*/
 
                     s_tracer.SetWorkspaceSent(true);
                 }

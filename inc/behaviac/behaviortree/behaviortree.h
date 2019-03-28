@@ -66,6 +66,7 @@ namespace behaviac {
     class IInstanceMember;
     class IInstantiatedVariable;
     class IProperty;
+	class Workspace;
     /**
     * Return values of exec/update and valid states for behaviors.
     */
@@ -215,6 +216,12 @@ namespace behaviac {
         //so that they are treated as a return-running node and the next update will continue them.
         virtual bool IsManagingChildrenAsSubTrees() const;
 
+
+		inline Workspace* GetWorkspace() {
+			if (m_workspace == nullptr)
+				m_workspace = m_parent->GetWorkspace();
+			return m_workspace;
+		}
     protected:
         BEHAVIAC_DECLARE_MEMORY_OPERATORS(BehaviorNode);
         BEHAVIAC_DECLARE_ROOT_DYNAMIC_TYPE(BehaviorNode, CRTTIBase);
@@ -288,6 +295,7 @@ namespace behaviac {
 
         bool				m_bHasEvents;
         bool				m_loadAttachment;
+		Workspace*			m_workspace;
         friend class BehaviorTree;
         friend class BehaviorTask;
         friend class Agent;
@@ -368,7 +376,7 @@ namespace behaviac {
     protected:
         BEHAVIAC_DECLARE_MEMORY_OPERATORS(BehaviorTree);
         BEHAVIAC_DECLARE_DYNAMIC_TYPE(BehaviorTree, BehaviorNode);
-        BehaviorTree();
+        BehaviorTree(Workspace* workspace);
         virtual ~BehaviorTree();
         virtual void load(int version, const char* agentType, const properties_t& properties);
         virtual bool IsManagingChildrenAsSubTrees() const;

@@ -137,8 +137,8 @@ namespace behaviac {
         just use this default param and don't provode any param unless you know what you are doing
 		const char* version_str = BEHAVIAC_BUILD_CONFIG_STR
         */
-        static Workspace* GetInstance();
-		static void SetInstance(Workspace* workspace);
+//         static Workspace* GetInstance();
+// 		static void SetInstance(Workspace* workspace);
 
         void SetUseIntValue(bool bUseIntValue);
         bool GetUseIntValue();
@@ -206,8 +206,9 @@ namespace behaviac {
         either override BehaviorNodeLoaded or call 'SetBehaviorNodeLoader' to set a callback
         */
         virtual void BehaviorNodeLoaded(const char* nodeType, const properties_t& properties);
-
-        void Cleanup();
+		
+		static void Startup(Workspace* workspace);
+		static void Cleanup();
 
         void LogWorkspaceInfo();
 
@@ -260,8 +261,8 @@ namespace behaviac {
         BehaviorTreeTask* CreateBehaviorTreeTask(const char* relativePath);
         void DestroyBehaviorTreeTask(BehaviorTreeTask* behaviorTreeTask, Agent* agent);
 
-        void RegisterBasicNodes();
-        void UnRegisterBasicNodes();
+        static void RegisterBasicNodes();
+		static void UnRegisterBasicNodes();
 
         typedef behaviac::map<behaviac::string, BehaviorTree*> BehaviorTrees_t;
         typedef bool(*BehaviorTreeCreator_t)(BehaviorTree*);

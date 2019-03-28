@@ -26,7 +26,7 @@
 #include "behaviac/common/profiler/profiler.h"
 
 namespace behaviac {
-    bool TryStart();
+    bool TryStart(Workspace* workspace);
     void BaseStop();
 
     bool IsStarted();
@@ -177,7 +177,7 @@ namespace behaviac {
         void SendWorkspaceSettings();
     }
 
-	thread_local Workspace*	 ms_instance = 0;
+	//thread_local Workspace*	 ms_instance = 0;
 
     Workspace::Workspace() : m_bInited(false), m_bExecAgents(true), m_fileFormat(Workspace::EFF_xml),
         m_pBehaviorNodeLoader(0), m_behaviortreeCreators(0),
@@ -193,13 +193,46 @@ namespace behaviac {
     }
 
     Workspace::~Workspace() {
-		Context::Cleanup(this);
-    }
+#if BEHAVIAC_ENABLE_HOTRELOAD
 
-    Workspace* Workspace::GetInstance() {
-		return  ms_instance;
+		if (behaviac::Config::IsHotReload()) {
+			if (m_allBehaviorTreeTasks) {
+				//BehaviorTreeTasks will be freed by Agent
+				//for (AllBehaviorTreeTasks_t::iterator it = m_allBehaviorTreeTasks->begin(); it != m_allBehaviorTreeTasks->end(); ++it)
+				//{
+				//	BTItem_t& btItems = it->second;
+
+				//	for (behaviac::vector<BehaviorTreeTask*>::iterator it1 = btItems.bts.begin(); it1 != btItems.bts.end(); ++it1)
+				//	{
+				//		BehaviorTreeTask* bt = *it1;
+
+				//		BehaviorTask::DestroyTask(bt);
+				//	}
+				//}
+
+				m_allBehaviorTreeTasks->clear();
+				BEHAVIAC_DELETE m_allBehaviorTreeTasks;
+				m_allBehaviorTreeTasks = NULL;
+			}
+
+			CFileSystem::StopMonitoringDirectory();
+		}
+
+#endif//BEHAVIAC_ENABLE_HOTRELOAD
+
+		UnRegisterBehaviorTreeCreators();
+		this->UnLoadAll();
+		Workspace::FreeFileBuffer();
+		Context::Cleanup(this);
+		this->m_bInited = false;
+	}
+
+// 	Workspace* Workspace::GetInstance() {
+// 		return  ms_instance;
+// 	}
 /*
-        if (ms_instance == NULL) {
+	Workspace* Workspace::GetInstance() {
+		if (ms_instance == NULL) {
             if (version_str && !StringUtils::StringEqual(version_str, BEHAVIAC_BUILD_CONFIG_STR)) {
                 BEHAVIAC_LOGERROR("lib is built with '%s', while the executable is built with '%s'! please use the same define for '_DEBUG' and 'BEHAVIAC_RELEASE' in both the lib and executable's make.\n", BEHAVIAC_BUILD_CONFIG_STR, version_str);
                 BEHAVIAC_ASSERT(false);
@@ -213,12 +246,12 @@ namespace behaviac {
         }
 
         return ms_instance;
-*/
-    }
-
-	void Workspace::SetInstance(Workspace* workspace) {
-		ms_instance = workspace;
 	}
+*/
+
+// 	void Workspace::SetInstance(Workspace* workspace) {
+// 		ms_instance = workspace;
+// 	}
 
     bool Workspace::LoadWorkspaceSetting(const char* file, behaviac::string& workspaceRootPath) {
         uint32_t bufferSize = 0;
@@ -330,12 +363,11 @@ namespace behaviac {
         BEHAVIAC_LOGINFO("Version: %s\n", behaviac::GetVersionString());
         Config::LogInfo();
 
-        bool bOk = TryStart();
+        bool bOk = TryStart(this);
 
         if (!bOk) {
             return false;
         }
-
 
         if (this->GetFileFormat() == EFF_cpp || this->GetFileFormat() == EFF_default) {
             GenerationManager::RegisterBehaviors();
@@ -440,46 +472,42 @@ namespace behaviac {
         return m_frameSinceStartup;
     }
 
-    void Workspace::Cleanup() {
+	void Workspace::Startup(Workspace* workspace) {
+		TryStart(workspace);
+	}
+
+	void Workspace::Cleanup() {
 #if BEHAVIAC_ENABLE_HOTRELOAD
 
-        if (behaviac::Config::IsHotReload()) {
-            if (m_allBehaviorTreeTasks) {
-                //BehaviorTreeTasks will be freed by Agent
-                //for (AllBehaviorTreeTasks_t::iterator it = m_allBehaviorTreeTasks->begin(); it != m_allBehaviorTreeTasks->end(); ++it)
-                //{
-                //	BTItem_t& btItems = it->second;
+		if (behaviac::Config::IsHotReload()) {
+			if (m_allBehaviorTreeTasks) {
+				//BehaviorTreeTasks will be freed by Agent
+				//for (AllBehaviorTreeTasks_t::iterator it = m_allBehaviorTreeTasks->begin(); it != m_allBehaviorTreeTasks->end(); ++it)
+				//{
+				//	BTItem_t& btItems = it->second;
 
-                //	for (behaviac::vector<BehaviorTreeTask*>::iterator it1 = btItems.bts.begin(); it1 != btItems.bts.end(); ++it1)
-                //	{
-                //		BehaviorTreeTask* bt = *it1;
+				//	for (behaviac::vector<BehaviorTreeTask*>::iterator it1 = btItems.bts.begin(); it1 != btItems.bts.end(); ++it1)
+				//	{
+				//		BehaviorTreeTask* bt = *it1;
 
-                //		BehaviorTask::DestroyTask(bt);
-                //	}
-                //}
+				//		BehaviorTask::DestroyTask(bt);
+				//	}
+				//}
 
-                m_allBehaviorTreeTasks->clear();
-                BEHAVIAC_DELETE m_allBehaviorTreeTasks;
-                m_allBehaviorTreeTasks = NULL;
-            }
+				m_allBehaviorTreeTasks->clear();
+				BEHAVIAC_DELETE m_allBehaviorTreeTasks;
+				m_allBehaviorTreeTasks = NULL;
+			}
 
-            CFileSystem::StopMonitoringDirectory();
-        }
+			CFileSystem::StopMonitoringDirectory();
+		}
 
 #endif//BEHAVIAC_ENABLE_HOTRELOAD
 
-        UnRegisterBehaviorTreeCreators();
+		Agent::Cleanup();
 
-        Agent::Cleanup();
-
-        this->UnLoadAll();
-        this->UnRegisterBasicNodes();
-
-        Workspace::FreeFileBuffer();
-        BaseStop();
-
-        this->m_bInited = false;
-    }
+		BaseStop();
+	}
 
     bool Workspace::RegisterBehaviorTreeCreator(const char* relativePath, BehaviorTreeCreator_t creator) {
         if (relativePath != NULL) {
@@ -731,7 +759,7 @@ namespace behaviac {
         if (!pBT) {
             //in case of circular referencebehavior
             bNewly = true;
-            pBT = BEHAVIAC_NEW BehaviorTree();
+            pBT = BEHAVIAC_NEW BehaviorTree(this);
             m_behaviortrees[relativePath] = pBT;
         }
 

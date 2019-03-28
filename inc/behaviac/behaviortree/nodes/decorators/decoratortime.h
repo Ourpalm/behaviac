@@ -52,7 +52,7 @@ namespace behaviac {
     public:
         BEHAVIAC_DECLARE_DYNAMIC_TYPE(DecoratorTimeTask, DecoratorTask);
 
-        DecoratorTimeTask();
+        DecoratorTimeTask(const DecoratorTime* node);
 
     protected:
         virtual ~DecoratorTimeTask();
@@ -72,6 +72,7 @@ namespace behaviac {
         double		m_time;
         long long	m_intStart;
         int			m_intTime;
+		DecoratorTime* m_node;
     };
 
     /*! @} */

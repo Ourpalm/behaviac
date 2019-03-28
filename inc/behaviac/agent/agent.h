@@ -514,7 +514,7 @@ namespace behaviac {
 
 #if !BEHAVIAC_RELEASE
         typedef behaviac::map<behaviac::string, Agent*> Agents_t;
-        static Agents_t* ms_agents;
+        static Agents_t* ms_agents; // 多线程,已废弃!!
         static Agents_t* Agents(bool bCleanup);
 #endif//BEHAVIAC_RELEASE
 

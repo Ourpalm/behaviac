@@ -52,7 +52,7 @@ namespace behaviac {
     public:
         BEHAVIAC_DECLARE_DYNAMIC_TYPE(DecoratorFramesTask, DecoratorTask);
 
-        DecoratorFramesTask();
+        DecoratorFramesTask(const DecoratorFrames* node);
 
     protected:
         virtual ~DecoratorFramesTask();
@@ -69,6 +69,7 @@ namespace behaviac {
     private:
         int	m_start;
         int	m_frames;
+		DecoratorFrames* m_node;
     };
     /*! @} */
     /*! @} */

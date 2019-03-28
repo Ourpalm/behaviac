@@ -136,7 +136,7 @@ namespace behaviac {
         BEHAVIAC_UNUSED_VAR(actionResult);
         BEHAVIAC_UNUSED_VAR(mode);
 
-		auto workspace = Workspace::GetInstance();
+		auto workspace = pAgent->GetWorkspace();
 
         if (Config::IsLoggingOrSocketing()) {
             //BEHAVIAC_PROFILE("LogManager::LogAction");

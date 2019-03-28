@@ -47,16 +47,17 @@ namespace behaviac {
         return BEHAVIAC_BUILD_CONFIG_STR;
     }
 
-    bool BaseStart() {
+    bool BaseStart(Workspace* workspace) {
         //BEHAVIAC_ASSERT(ms_nStarted == 0, "behaviac::Stop was not invoked! or behaviac::Start had been invoked already!");
         if (ms_nStarted == 0) {
             ms_nStarted++;
 
             behaviac::SetMainThread();
 
-            behaviac::Workspace::GetInstance()->RegisterBasicNodes();
+			// 转移到workspace中
+            behaviac::Workspace::RegisterBasicNodes();
 
-            AgentMeta::Register();
+            AgentMeta::Register(workspace);
 
             bool bSocketing = Config::IsSocketing();
 
@@ -100,7 +101,9 @@ namespace behaviac {
             //ComparerRegister::Cleanup();
             ComputerRegister::Cleanup();
 
-            Context::Cleanup(Workspace::GetInstance());
+			Workspace::UnRegisterBasicNodes();
+			// 转移到workspace中
+            //Context::Cleanup(Workspace::GetInstance());
 
             //AgentProperties::Cleanup();
             AgentMeta::UnRegister();
@@ -110,9 +113,9 @@ namespace behaviac {
         }
     }
 
-    bool TryStart() {
+    bool TryStart(Workspace* workspace) {
         if (!IsStarted()) {
-            bool bOk = BaseStart();
+            bool bOk = BaseStart(workspace);
 
             return bOk;
         }

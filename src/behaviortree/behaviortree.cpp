@@ -129,7 +129,7 @@ namespace behaviac {
         m_enter_precond(0), m_update_precond(0), m_both_precond(0),
         m_success_effectors(0), m_failure_effectors(0), m_both_effectors(0),
         m_parent(0), m_children(0), m_customCondition(0),
-        m_bHasEvents(false), m_loadAttachment(false) {
+        m_bHasEvents(false), m_loadAttachment(false), m_workspace(0) {
     }
 
     BehaviorNode::~BehaviorNode() {
@@ -470,7 +470,7 @@ namespace behaviac {
 
         {
             const char* nodeType = this->GetObjectTypeName();
-            Workspace::GetInstance()->BehaviorNodeLoaded(nodeType, properties);
+            this->GetWorkspace()->BehaviorNodeLoaded(nodeType, properties);
         }
     }
 
@@ -567,8 +567,9 @@ namespace behaviac {
         return super::IsValid(pAgent, pTask);
     };
 
-    BehaviorTree::BehaviorTree() : BehaviorNode() {
+    BehaviorTree::BehaviorTree(Workspace* workspace) : BehaviorNode() {
         this->m_bIsFSM = false;
+		this->m_workspace = workspace;
     }
 
     BehaviorTree::~BehaviorTree() {

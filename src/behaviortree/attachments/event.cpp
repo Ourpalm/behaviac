@@ -55,7 +55,7 @@ namespace behaviac {
             } else if (StringUtils::StringEqual(p.name, "ReferenceFilename")) {
                 this->m_referencedBehaviorPath = p.value;
 				if (Config::PreloadBehaviors()) {
-					BehaviorTree* behaviorTree = Workspace::GetInstance()->LoadBehaviorTree(p.value);
+					BehaviorTree* behaviorTree = GetWorkspace()->LoadBehaviorTree(p.value);
 					BEHAVIAC_ASSERT(behaviorTree);
 					BEHAVIAC_UNUSED_VAR(behaviorTree);
 				}

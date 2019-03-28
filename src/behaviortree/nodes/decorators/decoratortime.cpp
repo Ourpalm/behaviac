@@ -85,12 +85,13 @@ namespace behaviac {
     }
 
     BehaviorTask* DecoratorTime::createTask() const {
-        DecoratorTimeTask* pTask = BEHAVIAC_NEW DecoratorTimeTask();
+        DecoratorTimeTask* pTask = BEHAVIAC_NEW DecoratorTimeTask(this);
 
         return pTask;
     }
 
-    DecoratorTimeTask::DecoratorTimeTask() : DecoratorTask(), m_start(0), m_time(0), m_intStart(0), m_intTime(0) {
+    DecoratorTimeTask::DecoratorTimeTask(const DecoratorTime* node) : DecoratorTask(), m_start(0), m_time(0), m_intStart(0), m_intTime(0) {
+		m_node = const_cast<DecoratorTime*>(node);
     }
 
     DecoratorTimeTask::~DecoratorTimeTask() {
@@ -192,7 +193,7 @@ namespace behaviac {
     EBTStatus DecoratorTimeTask::decorate(EBTStatus status) {
         BEHAVIAC_UNUSED_VAR(status);
 
-		auto workspace = Workspace::GetInstance();
+		auto workspace = m_node->GetWorkspace();
         bool bUseIntValue = workspace->GetUseIntValue();
 
         if (bUseIntValue) {

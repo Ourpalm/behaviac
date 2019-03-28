@@ -63,7 +63,7 @@ namespace behaviac
         }
     }
 
-	BEHAVIAC_API bool TryStart();
+	BEHAVIAC_API bool TryStart(Workspace* workspace);
 
     template<typename TAGENT>
     BEHAVIAC_FORCEINLINE TAGENT* Agent::Create(Workspace* workspace, Context* pctx, const char* agentInstanceName, short priority)
@@ -75,7 +75,8 @@ namespace behaviac
             agentInstanceNameAny = TAGENT::GetClassTypeName();
         }
 
-		TryStart();
+		// workspace保证先初始化
+		// TryStart();
 
         bool bToBind = false;
         TAGENT* pA = GetAgentInstance<TAGENT>(agentInstanceNameAny, pctx, bToBind);
