@@ -183,7 +183,7 @@ namespace behaviac {
     Workspace::Workspace() : m_bInited(false), m_bExecAgents(true), m_fileFormat(Workspace::EFF_xml),
         m_pBehaviorNodeLoader(0), m_behaviortreeCreators(0),
         m_frame(0), m_useIntValue(false), m_doubleValueSinceStartup(-1), m_intValueSinceStartup(-1)
-		, m_frameSinceStartup(-1), m_lastAgentId(0) {
+		, m_frameSinceStartup(-1), m_lastAgentId(0), m_contexts(NULL) {
 #if BEHAVIAC_ENABLE_HOTRELOAD
         m_allBehaviorTreeTasks = 0;
 #endif//BEHAVIAC_ENABLE_HOTRELOAD
