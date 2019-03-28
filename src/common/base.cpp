@@ -84,8 +84,6 @@ namespace behaviac {
                 Socket::ShutdownConnection();
             }
 
-            BehaviorNode::Cleanup();
-
             CleanupTickingMutex();
 
             //Agent::Cleanup();
@@ -107,6 +105,8 @@ namespace behaviac {
 
             //AgentProperties::Cleanup();
             AgentMeta::UnRegister();
+
+			BehaviorNode::Cleanup();
 #if BEHAVIAC_USE_HTN
             PlannerTask::Cleanup();
 #endif
