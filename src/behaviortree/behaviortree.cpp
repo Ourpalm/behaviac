@@ -705,10 +705,10 @@ namespace behaviac {
                         } else if (StringUtils::StringEqual(c->name(), kStrCustom)) {
                             rapidxml::xml_node<>*  customNode = (rapidxml::xml_node<>*)c->first_node(kStrNode);
                             BEHAVIAC_ASSERT(customNode);
-                            BehaviorNode* pChildNode = BehaviorNode::load(agentType, customNode, version);
+                            BehaviorNode* pChildNode = BehaviorNode::load(GetWorkspace(), agentType, customNode, version);
                             this->m_customCondition = pChildNode;
                         } else if (StringUtils::StringEqual(c->name(), kStrNode)) {
-                            BehaviorNode* pChildNode = BehaviorNode::load(agentType, c, version);
+                            BehaviorNode* pChildNode = BehaviorNode::load(GetWorkspace(), agentType, c, version);
                             BEHAVIAC_ASSERT(pChildNode);
                             bHasEvents |= pChildNode->m_bHasEvents;
 
@@ -749,8 +749,8 @@ namespace behaviac {
         const char* pAttachClassName = pAttachClassAttr->value();
 
         BehaviorNode* pAttachment = BehaviorNode::Create(pAttachClassName);
-
         BEHAVIAC_ASSERT(pAttachment != NULL);
+		pAttachment->SetWorkspace(this->GetWorkspace());
 
         if (pAttachment != NULL) {
             pAttachment->SetClassNameString(pAttachClassName);
@@ -818,7 +818,7 @@ namespace behaviac {
         return false;
     }
 
-    BehaviorNode* BehaviorNode::load(const char* agentType, rapidxml::xml_node<>* node, int version) {
+    BehaviorNode* BehaviorNode::load(Workspace* workspace, const char* agentType, rapidxml::xml_node<>* node, int version) {
         //BEHAVIAC_ASSERT(node.Tag == "node");
         BEHAVIAC_ASSERT(StringUtils::StringEqual(node->name(), "node"));
 
@@ -826,13 +826,13 @@ namespace behaviac {
             BEHAVIAC_ASSERT(StringUtils::StringEqual(attr->name(), kStrClass));
             const char* pClassName = attr->value();
             BehaviorNode* pNode = BehaviorNode::Create(pClassName);
-
             if (!pNode) {
                 BEHAVIAC_LOGWARNING("invalid node class '%s'\n", pClassName);
             }
 
             //BEHAVIAC_ASSERT(pNode != NULL, "unsupported class {0}", pClassName);
             BEHAVIAC_ASSERT(pNode != NULL, "unsupported class %s", pClassName);
+			pNode->SetWorkspace(workspace);
 
             if (pNode != NULL) {
                 pNode->SetClassNameString(pClassName);
@@ -947,6 +947,7 @@ namespace behaviac {
         BehaviorNode* pNode = BehaviorNode::Create(pClassName);
         //BEHAVIAC_ASSERT(pNode != NULL, pClassName);
         BEHAVIAC_ASSERT(pNode != NULL, pClassName);
+		pNode->SetWorkspace(this->GetWorkspace());
 
         if (pNode != NULL) {
             pNode->SetClassNameString(pClassName);
@@ -979,6 +980,7 @@ namespace behaviac {
                     BehaviorNode* pAttachment = BehaviorNode::Create(attachClassName);
                     //Debug::Check(pAttachment != NULL, attachClassName);
                     BEHAVIAC_ASSERT(pAttachment != NULL, attachClassName);
+					pAttachment->SetWorkspace(this->GetWorkspace());
 
                     if (pAttachment != NULL) {
                         pAttachment->SetClassNameString(attachClassName);

@@ -44,12 +44,13 @@ namespace behaviac {
         false;
 #endif//BEHAVIAC_RELEASE
 
-    bool Config::ms_bIsSocketing =
-#if !BEHAVIAC_RELEASE
-        true;
-#else
-        false;
-#endif//BEHAVIAC_RELEASE
+	bool Config::ms_bIsSocketing = false;
+	// ¶àÏß³Ì,½ûÖ¹socket debug!!
+// #if !BEHAVIAC_RELEASE
+//         true;
+// #else
+//         false;
+// #endif//BEHAVIAC_RELEASE
 
     bool Config::ms_bProfiling =
 #if !BEHAVIAC_RELEASE
@@ -134,7 +135,7 @@ namespace behaviac {
         return ms_socketPort;
     }
 
-    bool Config::ms_bHotReload = true;
+    bool Config::ms_bHotReload = false;
 
     bool Config::IsHotReload() {
         return ms_bHotReload;

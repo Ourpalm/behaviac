@@ -279,7 +279,7 @@ namespace behaviac {
         void HandleFileFormat(const behaviac::string& fullPath, behaviac::string& ext, Workspace::EFileFormat& f);
         char* ReadFileToBuffer(const char* file, const char* ext, uint32_t& bufferSize);
 
-    protected:
+    public:
         Workspace();
         virtual ~Workspace();
     private:

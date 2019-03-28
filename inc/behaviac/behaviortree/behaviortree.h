@@ -179,7 +179,7 @@ namespace behaviac {
             BEHAVIAC_ASSERT(false, "Can't step into this line");
             return false;
         }
-        static BehaviorNode* load(const char* agentType, behaviac::rapidxml::xml_node<>* node, int version);
+        static BehaviorNode* load(Workspace* workspace, const char* agentType, behaviac::rapidxml::xml_node<>* node, int version);
 
         static void Cleanup();
 
@@ -221,6 +221,9 @@ namespace behaviac {
 			if (m_workspace == nullptr)
 				m_workspace = m_parent->GetWorkspace();
 			return m_workspace;
+		}
+		inline void SetWorkspace(Workspace* workspace) {
+			m_workspace = workspace;
 		}
     protected:
         BEHAVIAC_DECLARE_MEMORY_OPERATORS(BehaviorNode);
