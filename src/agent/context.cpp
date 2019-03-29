@@ -20,7 +20,7 @@
 
 namespace behaviac {
 
-    Context::Context(int contextId) : m_context_id(contextId), m_bCreatedByMe(false), m_IsExecuting(false), m_workspace(0) {
+    Context::Context(long long contextId) : m_context_id(contextId), m_bCreatedByMe(false), m_IsExecuting(false), m_workspace(0), m_lastAgentId(0){
     }
 
     Context::~Context() {
@@ -37,7 +37,8 @@ namespace behaviac {
         this->CleanupInstances();
     }
 
-    Context& Context::GetContext(Workspace* workspace, int contextId) {
+    Context& Context::GetContext(Workspace* workspace, long long contextId) {
+		behaviac::ScopedLock lock(workspace->m_behaviorCS);
         if (!workspace->m_contexts) {
 			workspace->m_contexts = BEHAVIAC_NEW Contexts_t;
         }
@@ -57,10 +58,11 @@ namespace behaviac {
         return *pContext;
     }
 
-    void Context::Cleanup(Workspace* workspace, int contextId) {
+    void Context::Cleanup(Workspace* workspace, long long contextId) {
 		if (workspace == NULL)
 			return;
-        if (workspace->m_contexts) {
+		behaviac::ScopedLock lock(workspace->m_behaviorCS);
+		if (workspace->m_contexts) {
             if (contextId == -1) {
                 for (Contexts_t::iterator it = workspace->m_contexts->begin(); it != workspace->m_contexts->end(); ++it) {
                     Context* pContext = it->second;
@@ -304,7 +306,7 @@ namespace behaviac {
         }
     }
 
-    void Context::execAgents(Workspace* workspace, int contextId) {
+    void Context::execAgents(Workspace* workspace, long long contextId) {
         if (contextId >= 0) {
             Context& pContext = Context::GetContext(workspace, contextId);
 
@@ -378,7 +380,8 @@ namespace behaviac {
         }
     }
 
-    void Context::LogCurrentStates(Workspace* workspace, int contextId) {
+    void Context::LogCurrentStates(Workspace* workspace, long long contextId) {
+		behaviac::ScopedLock lock(workspace->m_behaviorCS);
         if (workspace->m_contexts != NULL) {
             if (contextId >= 0) {
                 Context& pContext = Context::GetContext(workspace, contextId);

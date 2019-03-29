@@ -44,23 +44,23 @@ namespace behaviac {
         void LogCurrentState();
 
     public:
-        static void execAgents(Workspace* workspace, int contextId);
-        static Context& GetContext(Workspace* workspace, int contextId);
+        static void execAgents(Workspace* workspace, long long contextId);
+        static Context& GetContext(Workspace* workspace, long long contextId);
 
         void AddAgent(Agent* pAgent);
         void RemoveAgent(Agent* pAgent);
 
         bool IsExecuting();
-		int GetContextId() const { return m_context_id; }
+		long long GetContextId() const { return m_context_id; }
 
         /**
         to cleanup the specified context.
 
         by default, contextId = -1, it cleans up all the contexts
         */
-        static void Cleanup(Workspace* workspace, int contextId = -1);
+        static void Cleanup(Workspace* workspace, long long contextId = -1);
 
-        static void LogCurrentStates(Workspace* workspace, int contextId);
+        static void LogCurrentStates(Workspace* workspace, long long contextId);
 
         virtual ~Context();
 
@@ -118,9 +118,12 @@ namespace behaviac {
             }
         };
 
+		int AllocAgentId() {
+			return ++this->m_lastAgentId;
+		}
 	public:
     //protected:
-        Context(int contextId);
+        Context(long long contextId);
 
         void CleanupStaticVariables();
         void CleanupInstances();
@@ -141,7 +144,8 @@ namespace behaviac {
         typedef behaviac::map<behaviac::string, Variables> AgentTypeStaticVariables_t;
         AgentTypeStaticVariables_t	m_static_variables;
 
-        int     m_context_id;
+        long long m_context_id;
+		int     m_lastAgentId;
         bool    m_bCreatedByMe;
         bool	m_IsExecuting;
 		Workspace* m_workspace;

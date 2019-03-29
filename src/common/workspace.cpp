@@ -183,7 +183,7 @@ namespace behaviac {
     Workspace::Workspace() : m_bInited(false), m_bExecAgents(true), m_fileFormat(Workspace::EFF_xml),
         m_pBehaviorNodeLoader(0), m_behaviortreeCreators(0),
         m_frame(0), m_useIntValue(false), m_doubleValueSinceStartup(-1), m_intValueSinceStartup(-1)
-		, m_frameSinceStartup(-1), m_lastAgentId(0), m_contexts(NULL) {
+		, m_frameSinceStartup(-1), m_contexts(NULL) {
 #if BEHAVIAC_ENABLE_HOTRELOAD
         m_allBehaviorTreeTasks = 0;
 #endif//BEHAVIAC_ENABLE_HOTRELOAD
@@ -662,14 +662,14 @@ namespace behaviac {
         this->DebugUpdate();
 
         if (this->m_bExecAgents) {
-            int contextId = -1;
+            long long contextId = -1;
 
             Context::execAgents(this, contextId);
         }
     }
 
     void Workspace::LogCurrentStates() {
-        int contextId = -1;
+        long long contextId = -1;
         Context::LogCurrentStates(this, contextId);
     }
 
@@ -689,6 +689,8 @@ namespace behaviac {
     }
 
     bool Workspace::Load(const char* relativePath, bool bForce) {
+		behaviac::ScopedLock lock(m_behaviorCS);
+
         bool bOk = this->TryInit();
 
         if (!bOk) {
@@ -831,6 +833,7 @@ namespace behaviac {
     }
 
     BehaviorTree* Workspace::LoadBehaviorTree(const char* relativePath) {
+		behaviac::ScopedLock lock(m_behaviorCS);
         behaviac::string strRelativePath(relativePath);
 
         if (m_behaviortrees[strRelativePath] != NULL) {

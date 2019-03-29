@@ -224,7 +224,7 @@ namespace behaviac {
         // BEHAVIAC_ASSERT(contextId >= 0, "invalid context id");
 		BEHAVIAC_ASSERT(pctx, "invalid context ptr");
         pAgent->m_context_id = pctx->GetContextId();
-        pAgent->m_id = workspace->AllocAgentId();
+        pAgent->m_id = pctx->AllocAgentId();
         pAgent->m_priority = priority;
     	pAgent->m_context = pctx;
 		pAgent->m_workspace = workspace;

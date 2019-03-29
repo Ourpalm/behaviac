@@ -183,7 +183,7 @@ namespace behaviac {
 
         void SetName(const char* instanceName);
 
-        inline int GetContextId() const {
+        inline long long GetContextId() const {
             return this->m_context_id;
         }
 		Context* GetCtxPtr() const { return m_context; }
@@ -455,7 +455,7 @@ namespace behaviac {
         virtual ~Agent();
 
         void destroy_();
-        int	m_context_id;
+		long long	m_context_id;
     private:
         Agent(const Agent& r);
         Agent& operator=(const Agent&);

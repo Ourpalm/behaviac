@@ -23,7 +23,7 @@
 namespace behaviac {
 
 	class Context;
-	typedef behaviac::map<int, Context*> Contexts_t;
+	typedef behaviac::map<long long, Context*> Contexts_t;
 
     class BEHAVIAC_API Config {
     private:
@@ -142,10 +142,6 @@ namespace behaviac {
 
         void SetUseIntValue(bool bUseIntValue);
         bool GetUseIntValue();
-
-		int AllocAgentId() {
-			return ++this->m_lastAgentId;
-		}
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         /**
@@ -341,6 +337,7 @@ namespace behaviac {
         ActionCount_t			m_actions_count;
 
         behaviac::Mutex			m_cs;
+		behaviac::Mutex			m_behaviorCS;
 
         static const int kMaxPath = 260 * 2;
 
@@ -387,7 +384,6 @@ namespace behaviac {
         FileBuffer_t m_fileBuffers[kFileBuffers];
 
         int m_frame;
-		int m_lastAgentId;
 
 		Contexts_t* m_contexts;
     protected:
