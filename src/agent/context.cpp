@@ -38,7 +38,7 @@ namespace behaviac {
     }
 
     Context& Context::GetContext(Workspace* workspace, int contextId) {
-        if (workspace->m_contexts) {
+        if (!workspace->m_contexts) {
 			workspace->m_contexts = BEHAVIAC_NEW Contexts_t;
         }
 
