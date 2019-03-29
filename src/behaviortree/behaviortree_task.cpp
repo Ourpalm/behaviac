@@ -1285,7 +1285,7 @@ namespace behaviac {
         return BT_FAILURE;
     }
 
-    DecoratorTask::DecoratorTask() : SingeChildTask(), m_bDecorateWhenChildEnds(false) {
+    DecoratorTask::DecoratorTask() : SingeChildTask(), m_bDecorateWhenChildEnds(false), m_agent(0) {
     }
 
     void DecoratorTask::Init(const BehaviorNode* node) {
@@ -1315,6 +1315,7 @@ namespace behaviac {
 
     bool DecoratorTask::onenter(Agent* pAgent) {
         BEHAVIAC_UNUSED_VAR(pAgent);
+		m_agent = pAgent;
 
         return true;
     }

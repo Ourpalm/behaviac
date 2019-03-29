@@ -172,14 +172,14 @@ namespace behaviac {
         bool bUseIntValue = pAgent->GetWorkspace()->GetUseIntValue();
 
         if (bUseIntValue) {
-            this->m_intStart = pAgent->GetWorkspace()->GetIntValueSinceStartup();
+            this->m_intStart = pAgent->GetCtxPtr()->GetIntValueSinceStartup();
             this->m_intTime = this->GetIntTime(pAgent);
 
             if (this->m_intTime <= 0) {
                 return false;
             }
         } else {
-            this->m_start = pAgent->GetWorkspace()->GetDoubleValueSinceStartup();
+            this->m_start = pAgent->GetCtxPtr()->GetDoubleValueSinceStartup();
             this->m_time = this->GetTime(pAgent);
 
             if (this->m_time <= 0) {
@@ -192,18 +192,18 @@ namespace behaviac {
 
     EBTStatus DecoratorTimeTask::decorate(EBTStatus status) {
         BEHAVIAC_UNUSED_VAR(status);
+		BEHAVIAC_ASSERT(m_agent);
 
-		auto workspace = m_node->GetWorkspace();
-        bool bUseIntValue = workspace->GetUseIntValue();
+        bool bUseIntValue = m_node->GetWorkspace()->GetUseIntValue();
 
         if (bUseIntValue) {
-            long long time = workspace->GetIntValueSinceStartup();
+            long long time = m_agent->GetCtxPtr()->GetIntValueSinceStartup();
 
             if (time - this->m_intStart >= this->m_intTime) {
                 return BT_SUCCESS;
             }
         } else {
-            double time = workspace->GetDoubleValueSinceStartup();
+            double time = m_agent->GetCtxPtr()->GetDoubleValueSinceStartup();
 
             if (time - this->m_start >= this->m_time) {
                 return BT_SUCCESS;

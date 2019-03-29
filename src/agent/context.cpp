@@ -20,7 +20,11 @@
 
 namespace behaviac {
 
-    Context::Context(long long contextId) : m_context_id(contextId), m_bCreatedByMe(false), m_IsExecuting(false), m_workspace(0), m_lastAgentId(0){
+    Context::Context(long long contextId) : m_context_id(contextId), m_bCreatedByMe(false), m_IsExecuting(false)
+		, m_workspace(0), m_lastAgentId(0)
+		, m_doubleValueSinceStartup(-1)
+		, m_intValueSinceStartup(-1) 
+		, m_frameSinceStartup(-1) {
     }
 
     Context::~Context() {

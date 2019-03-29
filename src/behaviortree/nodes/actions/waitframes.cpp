@@ -121,7 +121,7 @@ namespace behaviac {
     bool WaitFramesTask::onenter(Agent* pAgent) {
         BEHAVIAC_UNUSED_VAR(pAgent);
 
-        this->m_start = pAgent->GetWorkspace()->GetFrameSinceStartup();
+        this->m_start = pAgent->GetCtxPtr()->GetFrameSinceStartup();
         this->m_frames = this->GetFrames(pAgent);
 
         if (this->m_frames <= 0) {
@@ -140,7 +140,7 @@ namespace behaviac {
         BEHAVIAC_UNUSED_VAR(pAgent);
         BEHAVIAC_UNUSED_VAR(childStatus);
 
-        int frames = pAgent->GetWorkspace()->GetFrameSinceStartup();
+        int frames = pAgent->GetCtxPtr()->GetFrameSinceStartup();
 
         if (frames - this->m_start + 1 >= this->m_frames) {
             return BT_SUCCESS;

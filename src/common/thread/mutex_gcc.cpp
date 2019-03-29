@@ -52,9 +52,11 @@ namespace behaviac {
         // Use the shadow as memory space for the platform specific implementation
         _impl = (MutexImpl*)m_buffer;
 
-		pthread_mutexattr_init(&_impl->_mutex);
-		pthread_mutexattr_settype(&_impl->_mutex, PTHREAD_MUTEX_RECURSIVE);
-        pthread_mutex_init(&_impl->_mutex, 0);
+		pthread_mutexattr_t ma;
+		pthread_mutexattr_init(&ma);
+		pthread_mutexattr_settype(&ma, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutex_init(&_impl->_mutex, &ma);
+		pthread_mutexattr_destroy(&ma);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

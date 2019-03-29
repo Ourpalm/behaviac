@@ -153,17 +153,19 @@ namespace behaviac {
         */
 
         // Deprecated methods, use DoubleValueSinceStartup or IntValueSinceStartup insteadly.
-        virtual void SetTimeSinceStartup(double timeSinceStartup);
-        virtual double GetTimeSinceStartup();
+        //virtual void SetTimeSinceStartup(double timeSinceStartup);
+        //virtual double GetTimeSinceStartup();
+/*
 
-        virtual void SetDoubleValueSinceStartup(double valueSinceStartup);
-        virtual double GetDoubleValueSinceStartup();
+        void SetDoubleValueSinceStartup(double valueSinceStartup);
+        double GetDoubleValueSinceStartup();
 
-        virtual void SetIntValueSinceStartup(long long valueSinceStartup);
-        virtual long long GetIntValueSinceStartup();
+        void SetIntValueSinceStartup(long long valueSinceStartup);
+        long long GetIntValueSinceStartup();
 
-        virtual void SetFrameSinceStartup(int frameSinceStartup);
-        virtual int GetFrameSinceStartup();
+        void SetFrameSinceStartup(int frameSinceStartup);
+        int GetFrameSinceStartup();
+*/
 
         /**
         'FilePath' is the path in which the files are exported, which is configured in the workspace file.
@@ -278,6 +280,9 @@ namespace behaviac {
     public:
         Workspace();
         virtual ~Workspace();
+
+		static Workspace* Create();
+		static void Destroy(Workspace* workspace);
     private:
 		friend class Context;
 

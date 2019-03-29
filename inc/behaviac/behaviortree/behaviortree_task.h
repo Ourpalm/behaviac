@@ -342,9 +342,10 @@ namespace behaviac {
         please note, it is not called if the child's exec returns running
         */
         virtual EBTStatus decorate(EBTStatus status) = 0;
-
-    private:
-        bool m_bDecorateWhenChildEnds;
+	protected:
+		Agent* m_agent;
+	private:
+		bool m_bDecorateWhenChildEnds;
     };
 
     // ============================================================================

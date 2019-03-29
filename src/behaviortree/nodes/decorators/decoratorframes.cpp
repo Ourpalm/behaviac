@@ -118,7 +118,7 @@ namespace behaviac {
     bool DecoratorFramesTask::onenter(Agent* pAgent) {
         super::onenter(pAgent);
 
-        this->m_start = m_node->GetWorkspace()->GetFrameSinceStartup();
+        this->m_start = pAgent->GetCtxPtr()->GetFrameSinceStartup();
         this->m_frames = this->GetFrames(pAgent);
 
         return (this->m_frames > 0);
@@ -126,8 +126,9 @@ namespace behaviac {
 
     EBTStatus DecoratorFramesTask::decorate(EBTStatus status) {
         BEHAVIAC_UNUSED_VAR(status);
+		BEHAVIAC_ASSERT(m_agent);
 
-        if (m_node->GetWorkspace()->GetFrameSinceStartup() - this->m_start + 1 >= this->m_frames) {
+        if (m_agent->GetCtxPtr()->GetFrameSinceStartup() - this->m_start + 1 >= this->m_frames) {
             return BT_SUCCESS;
         }
 

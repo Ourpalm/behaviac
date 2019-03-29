@@ -121,6 +121,28 @@ namespace behaviac {
 		int AllocAgentId() {
 			return ++this->m_lastAgentId;
 		}
+
+		inline void SetDoubleValueSinceStartup(double valueSinceStartup) {
+			m_doubleValueSinceStartup = valueSinceStartup;
+		}
+
+		inline double GetDoubleValueSinceStartup() {
+			return m_doubleValueSinceStartup;
+		}
+
+		inline void SetIntValueSinceStartup(long long valueSinceStartup) {
+			m_intValueSinceStartup = valueSinceStartup;
+		}
+		inline long long GetIntValueSinceStartup() {
+			return m_intValueSinceStartup;
+		}
+
+		inline void SetFrameSinceStartup(int frameSinceStartup) {
+			m_frameSinceStartup = frameSinceStartup;
+		}
+		inline int GetFrameSinceStartup() {
+			return m_frameSinceStartup;
+		}
 	public:
     //protected:
         Context(long long contextId);
@@ -149,6 +171,10 @@ namespace behaviac {
         bool    m_bCreatedByMe;
         bool	m_IsExecuting;
 		Workspace* m_workspace;
+		double m_doubleValueSinceStartup;
+		long long m_intValueSinceStartup;
+		int m_frameSinceStartup;
+
     };
     /*! @} */
     /*! @} */

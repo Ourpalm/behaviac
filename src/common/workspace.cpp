@@ -228,6 +228,16 @@ namespace behaviac {
 		this->m_bInited = false;
 	}
 
+	Workspace* Workspace::Create()
+	{
+		return BEHAVIAC_NEW Workspace();
+	}
+
+	void Workspace::Destroy(Workspace* workspace)
+	{
+		BEHAVIAC_DELETE(workspace);
+	}
+
 // 	Workspace* Workspace::GetInstance() {
 // 		return  ms_instance;
 // 	}
@@ -431,17 +441,18 @@ namespace behaviac {
         return m_useIntValue;
     }
 
-    void Workspace::SetTimeSinceStartup(double timeSinceStartup) {
-        BEHAVIAC_ASSERT(!m_useIntValue);
-        m_doubleValueSinceStartup = timeSinceStartup * 1000;
-    }
+//     void Workspace::SetTimeSinceStartup(double timeSinceStartup) {
+//         BEHAVIAC_ASSERT(!m_useIntValue);
+//         m_doubleValueSinceStartup = timeSinceStartup * 1000;
+//     }
+// 
+//     double Workspace::GetTimeSinceStartup() {
+//         BEHAVIAC_ASSERT(!m_useIntValue);
+//         BEHAVIAC_ASSERT(m_doubleValueSinceStartup >= 0, "SetTimeSinceStartup() should be called on your game update() method before GetTimeSinceStartup() is called.");
+//         return m_doubleValueSinceStartup * 0.001;
+//     }
 
-    double Workspace::GetTimeSinceStartup() {
-        BEHAVIAC_ASSERT(!m_useIntValue);
-        BEHAVIAC_ASSERT(m_doubleValueSinceStartup >= 0, "SetTimeSinceStartup() should be called on your game update() method before GetTimeSinceStartup() is called.");
-        return m_doubleValueSinceStartup * 0.001;
-    }
-
+/*
     void Workspace::SetDoubleValueSinceStartup(double valueSinceStartup) {
         BEHAVIAC_ASSERT(!m_useIntValue);
         m_doubleValueSinceStartup = valueSinceStartup;
@@ -472,6 +483,7 @@ namespace behaviac {
         BEHAVIAC_ASSERT(m_frameSinceStartup >= 0, "SetFrameSinceStartup() should be called on your game update() method before GetFrameSinceStartup() is called.");
         return m_frameSinceStartup;
     }
+*/
 
 	void Workspace::Startup(Workspace* workspace) {
 		TryStart(workspace);
