@@ -105,8 +105,10 @@ namespace behaviac {
             BehaviorTask* task = *it;
             BEHAVIAC_ASSERT(DecoratorWeightTask::DynamicCast(task));
             DecoratorWeightTask* pWT = (DecoratorWeightTask*)task;
+			//不满足前置条件的,不进入概率选择
+			bool valid = task->CheckPreconditions(pAgent, false);
 
-            int weight = pWT->GetWeight(pAgent);
+            int weight = valid ? pWT->GetWeight(pAgent) : 0;
             this->m_weightingMap.push_back(weight);
             this->m_totalSum += weight;
         }
