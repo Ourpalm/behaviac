@@ -41,8 +41,20 @@ namespace behaviac {
         this->CleanupInstances();
     }
 
+	Context* Context::CreateContext(Workspace* workspace, long long contextId) {
+		Context* pContext = BEHAVIAC_NEW Context(contextId);
+		pContext->m_workspace = workspace;
+		return pContext;
+	}
+
+	void Context::DestroyContext(Workspace* workspace, Context* context) {
+		BEHAVIAC_DELETE(context);
+	}
+
     Context& Context::GetContext(Workspace* workspace, long long contextId) {
-		behaviac::ScopedLock lock(workspace->m_behaviorCS);
+		throw std::string("!!!out expected!!!");
+
+		behaviac::ScopedLock lock(workspace->m_contextCS);
         if (!workspace->m_contexts) {
 			workspace->m_contexts = BEHAVIAC_NEW Contexts_t;
         }
@@ -65,7 +77,7 @@ namespace behaviac {
     void Context::Cleanup(Workspace* workspace, long long contextId) {
 		if (workspace == NULL)
 			return;
-		behaviac::ScopedLock lock(workspace->m_behaviorCS);
+		behaviac::ScopedLock lock(workspace->m_contextCS);
 		if (workspace->m_contexts) {
             if (contextId == -1) {
                 for (Contexts_t::iterator it = workspace->m_contexts->begin(); it != workspace->m_contexts->end(); ++it) {
@@ -385,7 +397,8 @@ namespace behaviac {
     }
 
     void Context::LogCurrentStates(Workspace* workspace, long long contextId) {
-		behaviac::ScopedLock lock(workspace->m_behaviorCS);
+		throw std::string("!!!out expected!!!");
+		behaviac::ScopedLock lock(workspace->m_contextCS);
         if (workspace->m_contexts != NULL) {
             if (contextId >= 0) {
                 Context& pContext = Context::GetContext(workspace, contextId);

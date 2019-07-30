@@ -19,6 +19,7 @@
 
 #include "behaviac/common/base.h"
 #include "behaviac/common/logger/logmanager.h"
+#include <shared_mutex>
 
 namespace behaviac {
 
@@ -224,7 +225,7 @@ namespace behaviac {
         @param bForce
         force to load, otherwise it just uses the one in the cache
         */
-        bool Load(const char* relativePath, bool bForce = false);
+        BehaviorTree* Load2(const char* relativePath, bool bForce = false);
         void UnLoad(const char* relativePath);
         void UnLoadAll();
 
@@ -342,7 +343,8 @@ namespace behaviac {
         ActionCount_t			m_actions_count;
 
         behaviac::Mutex			m_cs;
-		behaviac::Mutex			m_behaviorCS;
+		behaviac::Mutex			m_contextCS;
+		std::shared_mutex		m_behaviorRW;
 
         static const int kMaxPath = 260 * 2;
 

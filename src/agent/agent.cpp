@@ -553,9 +553,7 @@ namespace behaviac {
             //	return;
             //}
 
-            bool bLoaded = m_workspace->Load(relativePath);
-
-            if (!bLoaded) {
+            if (m_workspace->Load2(relativePath) == nullptr) {
                 behaviac::string agentName = this->GetClassTypeName();
                 agentName += "::";
                 agentName += this->m_name;
@@ -766,7 +764,7 @@ namespace behaviac {
     }
 
     bool Agent::btload(const char* relativePath, bool bForce) {
-        bool bOk = m_workspace->Load(relativePath, bForce);
+        bool bOk = m_workspace->Load2(relativePath, bForce) != nullptr;
 
         if (bOk) {
 			m_workspace->RecordBTAgentMapping(relativePath, this);
@@ -905,7 +903,7 @@ namespace behaviac {
 
         for (unsigned int i = 0; i < bts.size(); ++i) {
             const behaviac::string& btName = bts[i];
-			m_workspace->Load(btName.c_str(), true);
+			m_workspace->Load2(btName.c_str(), true);
         }
 
         this->m_behaviorTreeTasks.clear();

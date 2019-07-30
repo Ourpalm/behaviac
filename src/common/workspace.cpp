@@ -481,12 +481,14 @@ namespace behaviac {
 
     int Workspace::GetFrameSinceStartup() {
         BEHAVIAC_ASSERT(m_frameSinceStartup >= 0, "SetFrameSinceStartup() should be called on your game update() method before GetFrameSinceStartup() is called.");
-        return m_frameSinceStartup;
+        return m_frameSinceStartup
+		;
     }
 */
 
 	void Workspace::Startup(Workspace* workspace) {
-		TryStart(workspace);
+		workspace->TryInit();
+		//TryStart(workspace);
 	}
 
 	void Workspace::Cleanup() {
@@ -700,30 +702,27 @@ namespace behaviac {
         return true;
     }
 
-    bool Workspace::Load(const char* relativePath, bool bForce) {
-		behaviac::ScopedLock lock(m_behaviorCS);
-
-        bool bOk = this->TryInit();
-
-        if (!bOk) {
-            //not init correctly
-            return false;
-        }
+	BehaviorTree* Workspace::Load2(const char* relativePath, bool bForce) {
 
         //BEHAVIAC_ASSERT(behaviac::StringUtils::FindExtension(relativePath) == 0, "no extention to specify");
         BEHAVIAC_ASSERT(IsValidPath(relativePath));
 
         BehaviorTree* pBT = 0;
-        BehaviorTrees_t::iterator it = m_behaviortrees.find(relativePath);
 
-        if (it != m_behaviortrees.end()) {
-            if (!bForce) {
-                return true;
-            }
+		{
+			std::shared_lock<std::shared_mutex> lock1(m_behaviorRW);
+			BehaviorTrees_t::iterator it = m_behaviortrees.find(relativePath);
 
-            pBT = it->second;
-        }
+			if (it != m_behaviortrees.end()) {
+				if (!bForce) {
+					return it->second;
+				}
 
+				pBT = it->second;
+			}
+		}
+
+		std::unique_lock<std::shared_mutex> lock2(m_behaviorRW);
         behaviac::string fullPath = StringUtils::CombineDir(this->GetFilePath(), relativePath);
 
         Workspace::EFileFormat f = this->GetFileFormat();
@@ -792,13 +791,13 @@ namespace behaviac {
                     bCleared = true;
                     pBT->Clear();
                 }
-
+				lock2.unlock();
                 if (f == EFF_xml) {
                     bLoadResult = pBT->load_xml(pBuffer);
                 } else {
                     bLoadResult = pBT->load_bson(pBuffer);
                 }
-
+				lock2.lock();
                 this->PopFileFromBuffer(pBuffer, bufferSize);
             } else {
                 BEHAVIAC_LOGERROR("'%s' doesn't exist!, Please check the file name or override Workspace and its GetFilePath()\n", fullPath.c_str());
@@ -841,23 +840,14 @@ namespace behaviac {
             BEHAVIAC_LOGWARNING("'%s' is not loaded!\n", fullPath.c_str());
         }
 
-        return bLoadResult;
+        //return bLoadResult;
+		return pBT;
     }
 
     BehaviorTree* Workspace::LoadBehaviorTree(const char* relativePath) {
-		behaviac::ScopedLock lock(m_behaviorCS);
-        behaviac::string strRelativePath(relativePath);
-
-        if (m_behaviortrees[strRelativePath] != NULL) {
-            return m_behaviortrees[strRelativePath];
-        } else {
-            bool bOk = this->Load(relativePath, true);
-
-            if (bOk) {
-                return m_behaviortrees[strRelativePath];
-            }
-        }
-
+		if (auto tree = this->Load2(relativePath/*, true by cbh*/)) {
+			return tree;
+		}
         return NULL;
     }
 
@@ -865,23 +855,7 @@ namespace behaviac {
         BEHAVIAC_ASSERT(behaviac::StringUtils::FindExtension(relativePath) == 0, "no extention to specify");
         BEHAVIAC_ASSERT(IsValidPath(relativePath));
 
-        BehaviorTrees_t::iterator it = m_behaviortrees.find(relativePath);
-        const BehaviorTree* bt = 0;
-
-        if (it != m_behaviortrees.end()) {
-            bt = it->second;
-        } else {
-            bool bOk = (Workspace::Load(relativePath));
-
-            if (bOk) {
-                BehaviorTrees_t::iterator it1 = m_behaviortrees.find(relativePath);
-
-                if (it1 != m_behaviortrees.end()) {
-                    bt = it1->second;
-                }
-            }
-        }
-
+		const BehaviorTree* bt = this->Load2(relativePath);
         if (bt) {
             BehaviorTask* task = bt->CreateAndInitTask();
 

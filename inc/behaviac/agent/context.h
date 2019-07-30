@@ -47,6 +47,9 @@ namespace behaviac {
         static void execAgents(Workspace* workspace, long long contextId);
         static Context& GetContext(Workspace* workspace, long long contextId);
 
+		static Context* CreateContext(Workspace* workspace, long long contextId);
+		static void DestroyContext(Workspace* workspace, Context* context);
+
         void AddAgent(Agent* pAgent);
         void RemoveAgent(Agent* pAgent);
 
