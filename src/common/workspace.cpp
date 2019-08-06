@@ -836,7 +836,7 @@ namespace behaviac {
                 //it has been cleared but failed to load, to remove it
                 m_behaviortrees.erase(relativePath);
             }
-
+			pBT = nullptr;
             BEHAVIAC_LOGWARNING("'%s' is not loaded!\n", fullPath.c_str());
         }
 
