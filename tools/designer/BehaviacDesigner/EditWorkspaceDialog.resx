@@ -696,6 +696,9 @@
   <data name="languageComboBox.Items1" xml:space="preserve">
     <value>cs</value>
   </data>
+  <data name="languageComboBox.Items2" xml:space="preserve">
+    <value>java</value>
+  </data>
   <data name="languageComboBox.Location" type="System.Drawing.Point, System.Drawing">
     <value>155, 148</value>
   </data>

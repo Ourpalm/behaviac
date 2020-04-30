@@ -252,7 +252,8 @@ namespace Behaviac.Design
             this.languageComboBox.FormattingEnabled = true;
             this.languageComboBox.Items.AddRange(new object[] {
             resources.GetString("languageComboBox.Items"),
-            resources.GetString("languageComboBox.Items1")});
+            resources.GetString("languageComboBox.Items1"),
+            resources.GetString("languageComboBox.Items2")});
             this.languageComboBox.Name = "languageComboBox";
             // 
             // metaFileLabel
