@@ -578,62 +578,86 @@ namespace PluginBehaviac.Exporters
 
                 foreach (PropertyDef prop in properties)
                 {
-                    if ((preview || !agent.IsImplemented) && !prop.IsInherited && !prop.IsPar && !prop.IsArrayElement)
+                    if ((preview || !agent.IsImplemented) && !prop.IsInherited && !prop.IsPar)
                     {
-                        if(Plugin.IsArrayType(prop.Type))
+                        if (!prop.IsArrayElement)
                         {
-                            System.Console.Write(1);
-                        }
+                            string staticStr = prop.IsStatic ? "static " : "";
+                            string propType = DataJavaExporter.GetGeneratedNativeType(prop.NativeType);
+                            //string defaultValue = DataJavaExporter.GetGeneratedPropertyDefaultValue(prop, propType);
+                            string defaultValue = DataJavaExporter.GetGeneratedPropertyDefaultValue(prop);
 
-                        string staticStr = prop.IsStatic ? "static " : "";
-                        string propType = DataJavaExporter.GetGeneratedNativeType(prop.NativeType);
-                        //string defaultValue = DataJavaExporter.GetGeneratedPropertyDefaultValue(prop, propType);
-                        string defaultValue = DataJavaExporter.GetGeneratedPropertyDefaultValue(prop);
+                            if (defaultValue != null)
+                            {
+                                defaultValue = " = " + defaultValue;
+                            }
 
-                        if (defaultValue != null)
-                        {
-                            defaultValue = " = " + defaultValue;
-                        }
-
-                        //file.WriteLine("{0}\t[behaviac.MemberMetaInfo(\"{1}\", \"{2}\")]", indent, prop.DisplayName, prop.BasicDescription);
-                        if (prop.IsPublic)
-                        {
-                            file.WriteLine("{0}\tpublic {1}{2} {3}{4};", indent, staticStr, propType, prop.BasicName, defaultValue);
-                        }
-                        else
-                        {
-                            file.WriteLine("{0}\tprivate {1}{2} {3}{4};", indent, staticStr, propType, prop.BasicName, defaultValue);
-                            file.WriteLine("{0}\tpublic {1}void _set_{2}({3} value)", indent, staticStr, prop.BasicName, propType);
-                            file.WriteLine("{0}\t{{", indent);
-                            file.WriteLine("{0}\t\t{1} = value;", indent, prop.BasicName);
-                            file.WriteLine("{0}\t}}", indent);
-                            file.WriteLine("{0}\tpublic {1}{2} _get_{3}()", indent, staticStr, propType, prop.BasicName);
-                            file.WriteLine("{0}\t{{", indent);
-                            file.WriteLine("{0}\t\treturn {1};", indent, prop.BasicName);
-                            file.WriteLine("{0}\t}}", indent);
+                            //file.WriteLine("{0}\t[behaviac.MemberMetaInfo(\"{1}\", \"{2}\")]", indent, prop.DisplayName, prop.BasicDescription);
+                            if (prop.IsPublic)
+                            {
+                                file.WriteLine("{0}\tpublic {1}{2} {3}{4};", indent, staticStr, propType, prop.BasicName, defaultValue);
+                            }
+                            else
+                            {
+                                file.WriteLine("{0}\tprivate {1}{2} {3}{4};", indent, staticStr, propType, prop.BasicName, defaultValue);
+                                file.WriteLine("{0}\tpublic {1}void _set_{2}({3} value)", indent, staticStr, prop.BasicName, propType);
+                                file.WriteLine("{0}\t{{", indent);
+                                file.WriteLine("{0}\t\t{1} = value;", indent, prop.BasicName);
+                                file.WriteLine("{0}\t}}", indent);
+                                file.WriteLine("{0}\tpublic {1}{2} _get_{3}()", indent, staticStr, propType, prop.BasicName);
+                                file.WriteLine("{0}\t{{", indent);
+                                file.WriteLine("{0}\t\treturn {1};", indent, prop.BasicName);
+                                file.WriteLine("{0}\t}}", indent);
+                            }
                         }
                         var propName = prop.BasicName.Replace("[]", "");
                         if (prop.IsStatic)
                         {
-                            
-                            file.WriteLine("{0}\tpublic IProperty CreateStaticProperty_{1}() {{", indent, propName.ToUpper());
-                            file.WriteLine("{0}\t\tCStaticMemberProperty.Getter getter = ()-> {{ return {1}.{2}; }};", indent, agent.Name.Replace("::","."), propName);
-                            file.WriteLine("{0}\t\tCStaticMemberProperty.Setter setter = (_obj)-> {{ {1}.{2} = ({3})_obj; }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeType));
-                            file.WriteLine("{0}\t\tCStaticMemberProperty prop = new CStaticMemberProperty(\"{1}\", {2}, getter, setter);", indent, 
-                                propName, JavaExporter.GetExportClassInfoDecl(prop.NativeType));
-                            file.WriteLine("{0}\t\treturn prop;", indent);
-                            file.WriteLine("{0}\t}}", indent);
+                            if (prop.IsArrayElement)
+                            {
+                                file.WriteLine("{0}\tpublic IProperty CreateStaticArrayProperty_{1}() {{", indent, propName.ToUpper());
+                                file.WriteLine("{0}\t\tCStaticArrayItemProperty.Getter getter = (_index)-> {{ return {1}.{2}.get(_index); }};", indent, agent.Name.Replace("::", "."), propName);
+                                file.WriteLine("{0}\t\tCStaticArrayItemProperty.Setter setter = (_obj)-> {{ {1}.{2}.set(_index,({3})_obj); }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeItemType));
+                                file.WriteLine("{0}\t\tCStaticArrayItemProperty prop = new CStaticArrayItemProperty(\"{1}\", {2}, getter, setter);", indent,
+                                    prop.BasicName, JavaExporter.GetExportClassInfoDecl(prop.NativeType));
+                                file.WriteLine("{0}\t\treturn prop;", indent);
+                                file.WriteLine("{0}\t}}", indent);
+                            }
+                            else
+                            {
+                                file.WriteLine("{0}\tpublic IProperty CreateStaticProperty_{1}() {{", indent, propName.ToUpper());
+                                file.WriteLine("{0}\t\tCStaticMemberProperty.Getter getter = ()-> {{ return {1}.{2}; }};", indent, agent.Name.Replace("::", "."), propName);
+                                file.WriteLine("{0}\t\tCStaticMemberProperty.Setter setter = (_obj)-> {{ {1}.{2} = ({3})_obj; }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeType));
+                                file.WriteLine("{0}\t\tCStaticMemberProperty prop = new CStaticMemberProperty(\"{1}\", {2}, getter, setter);", indent,
+                                    propName, JavaExporter.GetExportClassInfoDecl(prop.NativeType));
+                                file.WriteLine("{0}\t\treturn prop;", indent);
+                                file.WriteLine("{0}\t}}", indent);
+                            }
                         }
                         else
                         {
-                            file.WriteLine("{0}\tpublic IProperty CreateMemberProperty_{1}() {{", indent, propName.ToUpper());
-                            file.WriteLine("{0}\t\tCMemberProperty.Getter getter = (_agent)-> {{ return (({1})_agent).{2}; }};", indent, agent.Name.Replace("::", "."), propName);
-                            file.WriteLine("{0}\t\tCMemberProperty.Setter setter = (_agent,_obj)-> {{ (({1})_agent).{2} = ({3})_obj; }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeType));
-                            file.WriteLine("{0}\t\tCMemberProperty prop = new CMemberProperty(\"{1}\", {2}, getter, setter);", indent,
-                                propName, JavaExporter.GetExportClassInfoDecl(prop.NativeType));
-                            file.WriteLine("{0}\t\treturn prop;", indent);
-                            file.WriteLine("{0}\t}}", indent);
+                            if (prop.IsArrayElement)
+                            {
+                                file.WriteLine("{0}\tpublic IProperty CreateMemberArrayProperty_{1}() {{", indent, propName.ToUpper());
+                                file.WriteLine("{0}\t\tCMemberArrayItemProperty.Getter getter = (_agent, _index)-> {{ return (({1})_agent).{2}.get(_index); }};", indent, agent.Name.Replace("::", "."), propName);
+                                file.WriteLine("{0}\t\tCMemberArrayItemProperty.Setter setter = (_agent,_obj, _index)-> {{ (({1})_agent).{2}.set(_index, ({3})_obj); }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeItemType));
+                                file.WriteLine("{0}\t\tCMemberArrayItemProperty prop = new CMemberProperty(\"{1}\", {2}, getter, setter);", indent,
+                                    prop.BasicName, JavaExporter.GetExportClassInfoDecl(prop.NativeType));
+                                file.WriteLine("{0}\t\treturn prop;", indent);
+                                file.WriteLine("{0}\t}}", indent);
+                            }
+                            else
+                            {
+                                file.WriteLine("{0}\tpublic IProperty CreateMemberProperty_{1}() {{", indent, propName.ToUpper());
+                                file.WriteLine("{0}\t\tCMemberProperty.Getter getter = (_agent)-> {{ return (({1})_agent).{2}; }};", indent, agent.Name.Replace("::", "."), propName);
+                                file.WriteLine("{0}\t\tCMemberProperty.Setter setter = (_agent,_obj)-> {{ (({1})_agent).{2} = ({3})_obj; }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeType));
+                                file.WriteLine("{0}\t\tCMemberProperty prop = new CMemberProperty(\"{1}\", {2}, getter, setter);", indent,
+                                    propName, JavaExporter.GetExportClassInfoDecl(prop.NativeType));
+                                file.WriteLine("{0}\t\treturn prop;", indent);
+                                file.WriteLine("{0}\t}}", indent);
+                            }
                         }
+
 
                         file.WriteLine();
                     }
@@ -643,7 +667,7 @@ namespace PluginBehaviac.Exporters
 
                 foreach (MethodDef method in methods)
                 {
-                    if ((preview || !agent.IsImplemented) && !method.IsInherited && !method.IsNamedEvent)
+                    if ((preview || !agent.IsImplemented) && !method.IsInherited)//cbh && !method.IsNamedEvent)
                     {
                         string publicStr = method.IsPublic ? "public " : "private ";
                         string staticStr = method.IsStatic ? "static " : "";
@@ -712,7 +736,7 @@ namespace PluginBehaviac.Exporters
                         int numParams = method.Params.Count;
                         if (method.IsStatic)
                         {
-                            file.WriteLine("{0}\tpublic IMethod CreateStaticMethod_{1}() {{", indent, method.BasicName.ToUpper());
+                            file.WriteLine("{0}\tpublic static IMethod CreateStaticMethod_{1}() {{", indent, method.BasicName.ToUpper());
                             if (method.ReturnType == typeof(void))
                             {
                                 methodImpl = string.Format("{0}\t\treturn new CAgentStaticMethodVoid{1}<{2}>(({3})->{{ {4}.{5}({6});}});", 
@@ -732,8 +756,14 @@ namespace PluginBehaviac.Exporters
                         }
                         else
                         {
-                            file.WriteLine("{0}\tpublic IMethod CreateMemberMethod_{1}() {{", indent, method.BasicName.ToUpper());
-                            if (method.ReturnType == typeof(void))
+                            file.WriteLine("{0}\tpublic static IMethod CreateMemberMethod_{1}() {{", indent, method.BasicName.ToUpper());
+                            if(method.IsNamedEvent)
+                            {
+                                methodImpl = string.Format("{0}\t\treturn new CAgentMethodVoid{1}<{2}>((Agent _agent,{3})->{{ /*NamedEvent*/ }});",
+                                   indent, numParams, allParamTypes, allParams,
+                                   agent.Name.Replace("::", "."), method.BasicName, allParamNames);
+                            }
+                            else if (method.ReturnType == typeof(void))
                             {
                                 methodImpl = string.Format("{0}\t\treturn new CAgentMethodVoid{1}<{2}>((Agent _agent,{3})->{{ (({4})_agent).{5}({6});}});",
                                     indent, numParams, allParamTypes, allParams,
@@ -1627,11 +1657,33 @@ namespace PluginBehaviac.Exporters
                 {
                     if (prop.IsStatic)
                     {
-                        file.WriteLine("\t\t\tmeta.RegisterStaticProperty({0}.CreateStaticProperty_{1}());", agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""));
+                        if (!prop.IsArrayElement)
+                        {
+                            file.WriteLine("\t\t\tmeta.RegisterStaticProperty({2},{0}.CreateStaticProperty_{1}());",
+                                agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""),
+                                CRC32.CalcCRC(prop.BasicName));
+                        }
+                        else
+                        {
+                            file.WriteLine("\t\t\tmeta.RegisterStaticProperty({2},{0}.CreateStaticArrayProperty_{1}());",
+                                agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""),
+                                CRC32.CalcCRC(prop.BasicName));
+                        }
                     }
                     else
                     {
-                        file.WriteLine("\t\t\tmeta.RegisterMemberProperty({0}.CreateMemberProperty_{1}());", agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]",""));
+                        if (!prop.IsArrayElement)
+                        {
+                            file.WriteLine("\t\t\tmeta.RegisterMemberProperty({2},{0}.CreateMemberProperty_{1}());",
+                                agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""),
+                                CRC32.CalcCRC(prop.BasicName));
+                        }
+                        else
+                        {
+                            file.WriteLine("\t\t\tmeta.RegisterMemberProperty({2},{0}.CreateMemberArrayProperty_{1}());",
+                                agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""),
+                                CRC32.CalcCRC(prop.BasicName));
+                        }
                     }
                 }
 
@@ -1639,49 +1691,51 @@ namespace PluginBehaviac.Exporters
 
                 foreach (MethodDef method in methods)
                 {
-                    string agentMethod = "";
-                    string paramTypes = "";
-                    string paramTypeValues = "";
-                    string paramValues = "";
+//                     string agentMethod = "";
+//                     string paramTypes = "";
+//                     string paramTypeValues = "";
+//                     string paramValues = "";
 
-                    if (method.IsNamedEvent)
-                    {
-                        foreach (MethodDef.Param param in method.Params)
-                        {
-                            if (!string.IsNullOrEmpty(paramTypes))
-                            {
-                                paramTypes += ", ";
-                            }
-
-                            if (!string.IsNullOrEmpty(paramValues))
-                            {
-                                paramValues += ", ";
-                            }
-
-                            string paramType = DataJavaExporter.GetGeneratedNativeType(param.NativeType);
-                            paramTypes += paramType;
-                            paramTypeValues += ", " + paramType + " " + param.Name;
-                            paramValues += param.Name;
-                        }
-                        if (!string.IsNullOrEmpty(paramTypes))
-                        {
-                            paramTypes = string.Format("<{0}>", paramTypes);
-                        }
-
-                        agentMethod = string.Format("new CAgentMethodVoid{0}(delegate(Agent self{1}) {{ }}) /* {2} */", paramTypes, paramTypeValues, method.BasicName);
-
-                        file.WriteLine("\t\t\tmeta.RegisterMethod({0}, {1});", CRC32.CalcCRC(method.BasicName), agentMethod);
-                    }
-                    else
+//                     if (method.IsNamedEvent)
+//                     {
+//                         foreach (MethodDef.Param param in method.Params)
+//                         {
+//                             if (!string.IsNullOrEmpty(paramTypes))
+//                             {
+//                                 paramTypes += ", ";
+//                             }
+// 
+//                             if (!string.IsNullOrEmpty(paramValues))
+//                             {
+//                                 paramValues += ", ";
+//                             }
+// 
+//                             string paramType = DataJavaExporter.GetGeneratedNativeType(param.NativeType);
+//                             paramTypes += paramType;
+//                             paramTypeValues += ", " + paramType + " " + param.Name;
+//                             paramValues += param.Name;
+//                         }
+//                         if (!string.IsNullOrEmpty(paramTypes))
+//                         {
+//                             paramTypes = string.Format("<{0}>", paramTypes);
+//                         }
+// 
+//                         agentMethod = string.Format("new CAgentMethodVoid{0}((Agent self{1}) {{ }}) /* {2} */", paramTypes, paramTypeValues, method.BasicName);
+// 
+//                         file.WriteLine("\t\t\tmeta.RegisterMethod({0}, {1});", CRC32.CalcCRC(method.BasicName), agentMethod);
+//                     }
+//                     else
                     {
                         if (method.IsStatic)
                         {
-                            file.WriteLine("\t\t\tmeta.RegisterStaticMethod({0}.CreateStaticMethod_{1}());", agentNamespaceAndClass, method.BasicName.ToUpper());
+                            file.WriteLine("\t\t\tmeta.RegisterStaticMethod({2},{0}.CreateStaticMethod_{1}());", 
+                                agentNamespaceAndClass, method.BasicName.ToUpper(), CRC32.CalcCRC(method.BasicName));
 
                         }
                         else
                         {
-                            file.WriteLine("\t\t\tmeta.RegisterMemberMethod({0}.CreateMemberMethod_{1}());", agentNamespaceAndClass, method.BasicName.ToUpper());
+                            file.WriteLine("\t\t\tmeta.RegisterMemberMethod({2},{0}.CreateMemberMethod_{1}());", 
+                                agentNamespaceAndClass, method.BasicName.ToUpper(), CRC32.CalcCRC(method.BasicName));
                         }
                     }
                 }
