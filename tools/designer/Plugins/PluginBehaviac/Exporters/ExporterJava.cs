@@ -534,6 +534,7 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine("package {0};", agent.Namespace.Replace("::","."));
                 file.WriteLine();
                 file.WriteLine("import org.gof.behaviac.*;");
+                file.WriteLine("import org.gof.behaviac.members.*;");
                 file.WriteLine("import java.util.List;");
                 file.WriteLine("import java.util.ArrayList;");
                 file.WriteLine();
@@ -563,7 +564,8 @@ namespace PluginBehaviac.Exporters
                 string agentDisplayName = string.IsNullOrEmpty(agent.DisplayName) ? agent.BasicName : agent.DisplayName;
                 string agentDescription = string.IsNullOrEmpty(agent.Description) ? "" : agent.Description;
                 //file.WriteLine("{0}[behaviac.TypeMetaInfo(\"{1}\", \"{2}\")]", indent, agentDisplayName, agentDescription);
-                string baseClassStr = (agent.Base != null) ? string.Format(" extends {0}", agent.Base.Name.Replace("::", ".")) : "";
+                string baseName = ConvertAgentName(agent.Base.Name);
+                string baseClassStr = (agent.Base != null) ? string.Format(" extends {0}", baseName) : "";
                 file.WriteLine("{0}public class {1}{2}", indent, agent.BasicName, baseClassStr);
 
                 if (!preview)
@@ -615,9 +617,9 @@ namespace PluginBehaviac.Exporters
                         {
                             if (prop.IsArrayElement)
                             {
-                                file.WriteLine("{0}\tpublic IProperty CreateStaticArrayProperty_{1}() {{", indent, propName.ToUpper());
+                                file.WriteLine("{0}\tpublic static IProperty CreateStaticArrayProperty_{1}() {{", indent, propName.ToUpper());
                                 file.WriteLine("{0}\t\tCStaticArrayItemProperty.Getter getter = (_index)-> {{ return {1}.{2}.get(_index); }};", indent, agent.Name.Replace("::", "."), propName);
-                                file.WriteLine("{0}\t\tCStaticArrayItemProperty.Setter setter = (_obj)-> {{ {1}.{2}.set(_index,({3})_obj); }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeItemType));
+                                file.WriteLine("{0}\t\tCStaticArrayItemProperty.Setter setter = (_obj,_index)-> {{ {1}.{2}.set(_index,({3})_obj); }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeItemType));
                                 file.WriteLine("{0}\t\tCStaticArrayItemProperty prop = new CStaticArrayItemProperty(\"{1}\", {2}, getter, setter);", indent,
                                     prop.BasicName, JavaExporter.GetExportClassInfoDecl(prop.NativeType));
                                 file.WriteLine("{0}\t\treturn prop;", indent);
@@ -625,7 +627,7 @@ namespace PluginBehaviac.Exporters
                             }
                             else
                             {
-                                file.WriteLine("{0}\tpublic IProperty CreateStaticProperty_{1}() {{", indent, propName.ToUpper());
+                                file.WriteLine("{0}\tpublic static IProperty CreateStaticProperty_{1}() {{", indent, propName.ToUpper());
                                 file.WriteLine("{0}\t\tCStaticMemberProperty.Getter getter = ()-> {{ return {1}.{2}; }};", indent, agent.Name.Replace("::", "."), propName);
                                 file.WriteLine("{0}\t\tCStaticMemberProperty.Setter setter = (_obj)-> {{ {1}.{2} = ({3})_obj; }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeType));
                                 file.WriteLine("{0}\t\tCStaticMemberProperty prop = new CStaticMemberProperty(\"{1}\", {2}, getter, setter);", indent,
@@ -638,17 +640,17 @@ namespace PluginBehaviac.Exporters
                         {
                             if (prop.IsArrayElement)
                             {
-                                file.WriteLine("{0}\tpublic IProperty CreateMemberArrayProperty_{1}() {{", indent, propName.ToUpper());
+                                file.WriteLine("{0}\tpublic static IProperty CreateMemberArrayProperty_{1}() {{", indent, propName.ToUpper());
                                 file.WriteLine("{0}\t\tCMemberArrayItemProperty.Getter getter = (_agent, _index)-> {{ return (({1})_agent).{2}.get(_index); }};", indent, agent.Name.Replace("::", "."), propName);
                                 file.WriteLine("{0}\t\tCMemberArrayItemProperty.Setter setter = (_agent,_obj, _index)-> {{ (({1})_agent).{2}.set(_index, ({3})_obj); }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeItemType));
-                                file.WriteLine("{0}\t\tCMemberArrayItemProperty prop = new CMemberProperty(\"{1}\", {2}, getter, setter);", indent,
+                                file.WriteLine("{0}\t\tCMemberArrayItemProperty prop = new CMemberArrayItemProperty(\"{1}\", {2}, getter, setter);", indent,
                                     prop.BasicName, JavaExporter.GetExportClassInfoDecl(prop.NativeType));
                                 file.WriteLine("{0}\t\treturn prop;", indent);
                                 file.WriteLine("{0}\t}}", indent);
                             }
                             else
                             {
-                                file.WriteLine("{0}\tpublic IProperty CreateMemberProperty_{1}() {{", indent, propName.ToUpper());
+                                file.WriteLine("{0}\tpublic static IProperty CreateMemberProperty_{1}() {{", indent, propName.ToUpper());
                                 file.WriteLine("{0}\t\tCMemberProperty.Getter getter = (_agent)-> {{ return (({1})_agent).{2}; }};", indent, agent.Name.Replace("::", "."), propName);
                                 file.WriteLine("{0}\t\tCMemberProperty.Setter setter = (_agent,_obj)-> {{ (({1})_agent).{2} = ({3})_obj; }};", indent, agent.Name.Replace("::", "."), propName, JavaExporter.GetExportClassType(prop.NativeType));
                                 file.WriteLine("{0}\t\tCMemberProperty prop = new CMemberProperty(\"{1}\", {2}, getter, setter);", indent,
@@ -979,6 +981,14 @@ namespace PluginBehaviac.Exporters
             }
         }
 
+        private string ConvertAgentName(string agentType)
+        {
+            string s = agentType.Replace("::", ".");
+            if (s == "behaviac.Agent")
+                s = "org.gof.behaviac.Agent";
+            return s;
+        }
+
         private void ExportMembers(string agentFolder)
         {
             string loaderNamespace = "loader";
@@ -1008,7 +1018,7 @@ namespace PluginBehaviac.Exporters
 
                 // Load method
                 file.WriteLine("\t@Override");
-                file.WriteLine("\tpublic boolean Load() {{");
+                file.WriteLine("\tpublic boolean Load() {");
 
                 ExportMeta(file);
 
@@ -1022,7 +1032,7 @@ namespace PluginBehaviac.Exporters
 
                         if (!isStatic)
                         {
-                            file.WriteLine("\t\tAgentMeta.Register(\"{0}\",{0}.class);", agentType.Name.Replace("::", "."));
+                            file.WriteLine("\t\tAgentMeta.Register(\"{0}\",{0}.class);", ConvertAgentName(agentType.Name));
                         }
                     }
                 }
@@ -1083,7 +1093,7 @@ namespace PluginBehaviac.Exporters
 
                         if (!isStatic)
                         {
-                            file.WriteLine("\t\tAgentMeta.UnRegister(\"{0}\");", agentType.Name.Replace("::", "."));
+                            file.WriteLine("\t\tAgentMeta.UnRegister(\"{0}\");", ConvertAgentName(agentType.Name));
                         }
                     }
                 }
@@ -1635,7 +1645,7 @@ namespace PluginBehaviac.Exporters
 
         private void ExportMeta(StringWriter file)
         {
-            file.WriteLine("\t\tAgentMeta.SetTotalSignature({0});", CRC32.CalcCRC(Plugin.Signature));
+            file.WriteLine("\t\tAgentMeta.SetTotalSignature({0}L);", CRC32.CalcCRC(Plugin.Signature));
             file.WriteLine();
 
             foreach (AgentType agent in Plugin.AgentTypes)
@@ -1644,11 +1654,11 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine("\t\t\tAgentMeta meta;");
                 string agentTypeName = agent.Name.Replace("::", ".");
                 string signature = agent.GetSignature(true);
-                string agentNamespaceAndClass = agent.Name.Replace("::", ".");
+                string agentNamespaceAndClass = ConvertAgentName(agent.Name);
 
                 file.WriteLine("\n\t\t\t// {0}", agentTypeName);
-                file.WriteLine("\t\t\tmeta = new AgentMeta({0});", CRC32.CalcCRC(signature));
-                file.WriteLine("\t\t\tAgentMeta.RegisterMeta({0}, meta);", CRC32.CalcCRC(agentTypeName));
+                file.WriteLine("\t\t\tmeta = new AgentMeta({0}L);", CRC32.CalcCRC(signature));
+                file.WriteLine("\t\t\tAgentMeta.RegisterMeta({0}L, meta);", CRC32.CalcCRC(agentTypeName));
 
 
                 IList<PropertyDef> properties = agent.GetProperties(true);
@@ -1659,13 +1669,13 @@ namespace PluginBehaviac.Exporters
                     {
                         if (!prop.IsArrayElement)
                         {
-                            file.WriteLine("\t\t\tmeta.RegisterStaticProperty({2},{0}.CreateStaticProperty_{1}());",
+                            file.WriteLine("\t\t\tmeta.RegisterStaticProperty({2}L,{0}.CreateStaticProperty_{1}());",
                                 agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""),
                                 CRC32.CalcCRC(prop.BasicName));
                         }
                         else
                         {
-                            file.WriteLine("\t\t\tmeta.RegisterStaticProperty({2},{0}.CreateStaticArrayProperty_{1}());",
+                            file.WriteLine("\t\t\tmeta.RegisterStaticProperty({2}L,{0}.CreateStaticArrayProperty_{1}());",
                                 agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""),
                                 CRC32.CalcCRC(prop.BasicName));
                         }
@@ -1674,13 +1684,13 @@ namespace PluginBehaviac.Exporters
                     {
                         if (!prop.IsArrayElement)
                         {
-                            file.WriteLine("\t\t\tmeta.RegisterMemberProperty({2},{0}.CreateMemberProperty_{1}());",
+                            file.WriteLine("\t\t\tmeta.RegisterMemberProperty({2}L,{0}.CreateMemberProperty_{1}());",
                                 agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""),
                                 CRC32.CalcCRC(prop.BasicName));
                         }
                         else
                         {
-                            file.WriteLine("\t\t\tmeta.RegisterMemberProperty({2},{0}.CreateMemberArrayProperty_{1}());",
+                            file.WriteLine("\t\t\tmeta.RegisterMemberProperty({2}L,{0}.CreateMemberArrayProperty_{1}());",
                                 agentNamespaceAndClass, prop.BasicName.ToUpper().Replace("[]", ""),
                                 CRC32.CalcCRC(prop.BasicName));
                         }
@@ -1728,13 +1738,13 @@ namespace PluginBehaviac.Exporters
                     {
                         if (method.IsStatic)
                         {
-                            file.WriteLine("\t\t\tmeta.RegisterStaticMethod({2},{0}.CreateStaticMethod_{1}());", 
+                            file.WriteLine("\t\t\tmeta.RegisterStaticMethod({2}L,{0}.CreateStaticMethod_{1}());", 
                                 agentNamespaceAndClass, method.BasicName.ToUpper(), CRC32.CalcCRC(method.BasicName));
 
                         }
                         else
                         {
-                            file.WriteLine("\t\t\tmeta.RegisterMemberMethod({2},{0}.CreateMemberMethod_{1}());", 
+                            file.WriteLine("\t\t\tmeta.RegisterMemberMethod({2}L,{0}.CreateMemberMethod_{1}());", 
                                 agentNamespaceAndClass, method.BasicName.ToUpper(), CRC32.CalcCRC(method.BasicName));
                         }
                     }
