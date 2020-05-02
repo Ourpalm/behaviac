@@ -88,7 +88,9 @@
     <Compile Include="DataExporters\Cpp\MethodCppExporter.cs" />
     <Compile Include="DataExporters\Cpp\ParameterCppExporter.cs" />
     <Compile Include="DataExporters\Cpp\PropertyCppExporter.cs" />
+    <Compile Include="DataExporters\Java\DataJavaExporter.cs" />
     <Compile Include="Exporters\ExporterCs.cs" />
+    <Compile Include="Exporters\ExporterJava.cs" />
     <Compile Include="NodeExporters\AttachmentExporter.cs" />
     <Compile Include="Exporters\ExporterCpp.cs" />
     <Compile Include="NodeExporters\Cpp\Actions\ComputeCppExporter.cs" />

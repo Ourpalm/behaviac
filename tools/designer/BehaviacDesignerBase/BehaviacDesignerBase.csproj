@@ -84,6 +84,7 @@
     <Compile Include="Data\CsExporter.cs" />
     <Compile Include="Data\ExpandedNodeData.cs" />
     <Compile Include="Data\DataType.cs" />
+    <Compile Include="Data\JavaExporter.cs" />
     <Compile Include="Data\Lockfree\LockFreeQueue.cs" />
     <Compile Include="Data\Lockfree\ThreadSafeQueue.cs" />
     <Compile Include="Dialogs\CompositeEditorDialog.cs">
