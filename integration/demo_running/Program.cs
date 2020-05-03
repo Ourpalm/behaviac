@@ -74,6 +74,8 @@ namespace demo_running
         {
             InitBehavic();
 
+            behaviac.AgentMeta.ParseProperty<List<int>>("4:0|111|222|333");
+
             InitPlayer("demo_running");
 
             UpdateLoop();

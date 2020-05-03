@@ -18,20 +18,38 @@ namespace Behaviac.Design
 {
     public class CRC32
     {
-        static public uint CalcCRC(string str)
+        static public long bkdr_hash_and_sum(string str)
         {
-            uint crc = 0XFFFFFFFF;
 
-            for (int i = 0; i < str.Length; ++i)
+            long sum = 0;
+            long seed = 131; // 31 131 1313 13131 131313 etc..
+            long hash = 0;
+
+            for (var i = 0; i < str.Length; ++i)
             {
-                char ch = str[i];
-                byte b = (byte)ch;
-
-                UpdateB(ref crc, b);
+                sum += (int)str[i];
+                hash = hash * seed + (int)str[i];
             }
 
-            UpdateB(ref crc, (byte)str.Length);
-            return crc;
+            return Math.Abs((sum << 32) + (hash & 0x7FFFFFFF));
+
+        }
+
+        static public uint CalcCRC(string str)
+        {
+            return (uint)(int)bkdr_hash_and_sum(str);
+//             uint crc = 0XFFFFFFFF;
+// 
+//             for (int i = 0; i < str.Length; ++i)
+//             {
+//                 char ch = str[i];
+//                 byte b = (byte)ch;
+// 
+//                 UpdateB(ref crc, b);
+//             }
+// 
+//             UpdateB(ref crc, (byte)str.Length);
+//             return crc;
         }
 
         static public uint CalcCRCNoCase(string str)
