@@ -137,7 +137,8 @@ namespace Behaviac.Design.Attributes
 
             if (floatAtt != null)
             {
-                float val = (float)property.Property.GetValue(obj, null);
+                var vv = property.Property.GetValue(obj, null);
+                float val = (float)(double)Convert.ChangeType(vv, typeof(System.Double));
 
                 value = (decimal)val;
             }

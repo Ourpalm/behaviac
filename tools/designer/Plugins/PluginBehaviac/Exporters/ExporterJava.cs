@@ -1013,6 +1013,8 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine("package {0};", loaderNamespace);
                 file.WriteLine("import org.gof.behaviac.BehaviorLoader;"); 
                 file.WriteLine("import org.gof.behaviac.*;");
+                file.WriteLine("import org.gof.behaviac.members.*;");
+                file.WriteLine("import org.gof.behaviac.utils.StringUtils;");
                 //                 file.WriteLine("using System.Collections;");
                 //                 file.WriteLine("using System.Collections.Generic;");
                 file.WriteLine();
@@ -1287,7 +1289,7 @@ namespace PluginBehaviac.Exporters
                 structTypeName = structTypeName.Replace(".", "_");
 
                 // class
-                file.WriteLine("\t\tclass CInstanceConst_{0} : CInstanceConst<{1}>", structTypeName, structType.Fullname.Replace("::", "."));
+                file.WriteLine("\t\tpublic class CInstanceConst_{0} extends CInstanceConst", structTypeName, structType.Fullname.Replace("::", "."));
                 file.WriteLine("\t\t{");
 
                 foreach (PropertyDef prop in structType.Properties)
@@ -1301,10 +1303,11 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine();
 
                 // Constructors
-                file.WriteLine("\t\t\tpublic CInstanceConst_{0}(string typeName, string valueStr) : base(typeName, valueStr)", structTypeName);
+                file.WriteLine("\t\t\tpublic CInstanceConst_{0}(String typeName, String valueStr)", structTypeName);
                 file.WriteLine("\t\t\t{");
+                file.WriteLine("\t\t\t\tsuper({0},typeName,valueStr);", JavaExporter.GetExportClassInfoDecl(structType.Fullname.Replace("::", ".")));
 
-                file.WriteLine("\t\t\t\tList<string> paramStrs = behaviac.StringUtils.SplitTokensForStruct(valueStr);");
+                file.WriteLine("\t\t\t\tvar paramStrs = StringUtils.SplitTokensForStruct(valueStr);");
 
                 int validPropCount = 0;
                 foreach (PropertyDef prop in structType.Properties)
@@ -1315,7 +1318,7 @@ namespace PluginBehaviac.Exporters
                     }
                 }
 
-                file.WriteLine("\t\t\t\tDebug.Check(paramStrs != null && paramStrs.Count == {0});", validPropCount);
+                file.WriteLine("\t\t\t\tDebug.Check(paramStrs != null && paramStrs.size() == {0});", validPropCount);
                 file.WriteLine();
 
                 validPropCount = 0;
@@ -1325,7 +1328,8 @@ namespace PluginBehaviac.Exporters
                     {
                         string propType = DataJavaExporter.GetGeneratedNativeType(prop.NativeType);
 
-                        file.WriteLine("\t\t\t\t_{0} = (CInstanceMember<{1}>)AgentMeta.ParseProperty<{1}>(paramStrs[{2}]);", prop.BasicName, propType, validPropCount);
+                        file.WriteLine("\t\t\t\t_{0} = AgentMeta.ParseProperty(paramStrs.get({2}),{1});", prop.BasicName, 
+                            JavaExporter.GetExportClassInfoDecl(propType), validPropCount);
 
                         validPropCount++;
                     }
@@ -1335,7 +1339,8 @@ namespace PluginBehaviac.Exporters
                 file.WriteLine();
 
                 // Run()
-                file.WriteLine("\t\t\tpublic override void Run(Agent self)");
+                file.WriteLine("\t\t\t@Override");
+                file.WriteLine("\t\t\tpublic void Run(Agent self)");
                 file.WriteLine("\t\t\t{");
 
                 if (structType.Properties.Count > 0)
@@ -1357,14 +1362,8 @@ namespace PluginBehaviac.Exporters
                     {
                         string propType = DataJavaExporter.GetGeneratedNativeType(prop.NativeType);
 
-                        if (Plugin.IsRefType(prop.Type))
-                        {
-                            file.WriteLine("\t\t\t\t_value.{0} = ({1})_{0}.GetValueObject(self);", prop.BasicName, propType);
-                        }
-                        else
-                        {
-                            file.WriteLine("\t\t\t\t_value.{0} = ((CInstanceMember<{1}>)_{0}).GetValue(self);", prop.BasicName, propType);
-                        }
+                        file.WriteLine("\t\t\t\t(({2})_value).{0} = ({1})_{0}.GetValueObject(self);", prop.BasicName, 
+                            JavaExporter.GetExportClassType(propType), structType.Fullname.Replace("::", "."));
                     }
                 }
 
