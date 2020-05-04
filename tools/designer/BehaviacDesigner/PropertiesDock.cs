@@ -692,5 +692,10 @@ namespace Behaviac.Design
 
             SelectedObject = _selectedObject;
         }
+
+        private void propertyGrid_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

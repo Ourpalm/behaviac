@@ -65,9 +65,9 @@ namespace Behaviac.Design
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PropertiesDock));
             this.propertyGrid = new CustomPropertyGridTest.DynamicPropertyGrid();
             this.SuspendLayout();
-            //
+            // 
             // propertyGrid
-            //
+            // 
             this.propertyGrid.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this.propertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid.ForeColor = System.Drawing.Color.LightGray;
@@ -75,9 +75,10 @@ namespace Behaviac.Design
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(234, 414);
             this.propertyGrid.TabIndex = 0;
-            //
+            this.propertyGrid.Load += new System.EventHandler(this.propertyGrid_Load);
+            // 
             // PropertiesDock
-            //
+            // 
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(56)))), ((int)(((byte)(56)))), ((int)(((byte)(56)))));
             this.ClientSize = new System.Drawing.Size(234, 414);
             this.Controls.Add(this.propertyGrid);

@@ -582,6 +582,9 @@ namespace PluginBehaviac.Exporters
                 {
                     if ((preview || !agent.IsImplemented) && !prop.IsInherited && !prop.IsPar)
                     {
+                        if (prop.BasicName.Contains("_$local_task_param_$_"))
+                            continue;
+
                         if (!prop.IsArrayElement)
                         {
                             string staticStr = prop.IsStatic ? "static " : "";
@@ -613,6 +616,7 @@ namespace PluginBehaviac.Exporters
                             }
                         }
                         var propName = prop.BasicName.Replace("[]", "");
+                        
                         if (prop.IsStatic)
                         {
                             if (prop.IsArrayElement)
@@ -1675,6 +1679,8 @@ namespace PluginBehaviac.Exporters
 
                 foreach (PropertyDef prop in properties)
                 {
+                    if (prop.BasicName.Contains("_$local_task_param_$_"))
+                        continue;
                     if (prop.IsStatic)
                     {
                         if (!prop.IsArrayElement)
