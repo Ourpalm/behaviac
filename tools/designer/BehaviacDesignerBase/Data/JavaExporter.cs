@@ -53,8 +53,10 @@ namespace Behaviac.Design
             typeName = typeName.Replace("signed long long", "long");
             typeName = typeName.Replace("long long", "long");
             typeName = typeName.Replace("&", "");
+            typeName = typeName.Replace("*", "");
             typeName = typeName.Replace("System::Object", "Object");
-            typeName = typeName.Replace("behaviac::EBTStatus", "org.gof.behaviac.EBTStatus"); 
+            typeName = typeName.Replace("behaviac::EBTStatus", "org.gof.behaviac.EBTStatus");
+            typeName = typeName.Replace("::", ".");
             typeName = typeName.Trim();
 
             return typeName;
