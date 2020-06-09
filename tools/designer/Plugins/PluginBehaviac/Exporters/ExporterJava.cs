@@ -744,6 +744,18 @@ namespace PluginBehaviac.Exporters
                         file.WriteLine("{0}\t}}", indent);
                         file.WriteLine();
 
+                        var allParamTypesStartWithD = allParamTypes;
+                        var allParamTypesGeneric = allParamTypes;
+                        if (allParamTypes.Length > 0)
+                        {
+                            allParamTypesStartWithD = "," + allParamTypes;
+                            allParamTypesGeneric = "<" + allParamTypes + ">";
+                        }
+                        var allParamsStartWithD = allParams;
+                        if(allParams.Length > 0)
+                        {
+                            allParamsStartWithD = "," + allParams;
+                        }
 
                         var methodImpl = "";
                         int numParams = method.Params.Count;
@@ -752,15 +764,15 @@ namespace PluginBehaviac.Exporters
                             file.WriteLine("{0}\tpublic static IMethod CreateStaticMethod_{1}() {{", indent, method.BasicName.ToUpper());
                             if (method.ReturnType == typeof(void))
                             {
-                                methodImpl = string.Format("{0}\t\treturn new CAgentStaticMethodVoid{1}<{2}>(({3})->{{ {4}.{5}({6});}},{7});", 
-                                    indent, numParams, allParamTypes, allParams,
+                                methodImpl = string.Format("{0}\t\treturn new CAgentStaticMethodVoid{1}{2}(({3})->{{ {4}.{5}({6});}},{7});", 
+                                    indent, numParams, allParamTypesGeneric, allParams,
                                     agent.Name.Replace("::","."), method.BasicName, 
                                     allParamNames, allParamClassInfos);
                             }
                             else
                             {
-                                methodImpl = string.Format("{0}\t\treturn new CAgentStaticMethod{1}<{7},{2}>(({3})->{{ return {4}.{5}({6});}}, {8}, {9});",
-                                    indent, numParams, allParamTypes, allParams,
+                                methodImpl = string.Format("{0}\t\treturn new CAgentStaticMethod{1}<{7}{2}>(({3})->{{ return {4}.{5}({6});}}, {8}, {9});",
+                                    indent, numParams, allParamTypesStartWithD, allParams,
                                     agent.Name.Replace("::", "."), method.BasicName, 
                                     allParamNames,
                                     DataJavaExporter.GetExportClassType(method.NativeReturnType),
@@ -774,21 +786,21 @@ namespace PluginBehaviac.Exporters
                             file.WriteLine("{0}\tpublic static IMethod CreateMemberMethod_{1}() {{", indent, method.BasicName.ToUpper());
                             if(method.IsNamedEvent)
                             {
-                                methodImpl = string.Format("{0}\t\treturn new CAgentMethodVoid{1}<{2}>((Agent _agent,{3})->{{ /*NamedEvent*/ }}, {7});",
-                                   indent, numParams, allParamTypes, allParams,
+                                methodImpl = string.Format("{0}\t\treturn new CAgentMethodVoid{1}{2}((Agent _agent{3})->{{ /*NamedEvent*/ }}, {7});",
+                                   indent, numParams, allParamTypesGeneric, allParamsStartWithD,
                                    agent.Name.Replace("::", "."), method.BasicName, allParamNames, allParamClassInfos);
                             }
                             else if (method.ReturnType == typeof(void))
                             {
-                                methodImpl = string.Format("{0}\t\treturn new CAgentMethodVoid{1}<{2}>((Agent _agent,{3})->{{ (({4})_agent).{5}({6});}}, {7});",
-                                    indent, numParams, allParamTypes, allParams,
+                                methodImpl = string.Format("{0}\t\treturn new CAgentMethodVoid{1}{2}((Agent _agent{3})->{{ (({4})_agent).{5}({6});}}, {7});",
+                                    indent, numParams, allParamTypesGeneric, allParamsStartWithD,
                                     agent.Name.Replace("::", "."), method.BasicName, 
                                     allParamNames, allParamClassInfos);
                             }
                             else
                             {
-                                methodImpl = string.Format("{0}\t\treturn new CAgentMethod{1}<{7},{2}>((Agent _agent,{3})->{{ return (({4})_agent).{5}({6});}}, {8}, {9});",
-                                    indent, numParams, allParamTypes, allParams,
+                                methodImpl = string.Format("{0}\t\treturn new CAgentMethod{1}<{7}{2}>((Agent _agent{3})->{{ return (({4})_agent).{5}({6});}}, {8}, {9});",
+                                    indent, numParams, allParamTypesStartWithD, allParamsStartWithD,
                                     agent.Name.Replace("::", "."), method.BasicName,
                                     allParamNames,
                                     DataJavaExporter.GetExportClassType(method.NativeReturnType),

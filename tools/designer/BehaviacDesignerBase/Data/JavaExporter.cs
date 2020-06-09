@@ -166,7 +166,7 @@ namespace Behaviac.Design
             if (Plugin.IsArrayType(type))
             {
                 Type itemType = type.GetGenericArguments()[0];
-                return string.Format("ArrayList<{0}>", JavaExporter.GetExportClassType(type.Name));
+                return string.Format("ArrayList<{0}>", JavaExporter.GetExportClassType(itemType.Name));
             }
 
             return GetGeneratedNativeType(type.Name);
