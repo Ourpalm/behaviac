@@ -936,7 +936,7 @@ namespace PluginBehaviac.Exporters
                     enumfile.WriteLine("{0}\t{1}({2}){3}", indent, member.Name, enumVal, isLast ? ";" : ",");
                 }
                 enumfile.WriteLine("\tprivate int val;");
-                enumfile.WriteLine("\tprivate {0}(int val) {{}} ", enumType.Name);
+                enumfile.WriteLine("\tprivate {0}(int val) {{ this.val = val; }} ", enumType.Name);
                 enumfile.WriteLine("\tpublic int intValue() {{ return this.val; }} ", enumType.Name);
                 enumfile.WriteLine("{0}}}", indent);
                 

@@ -156,7 +156,7 @@ namespace Behaviac.Design.Exporters
 
             try
             {
-                Encoding utf8WithBom = new UTF8Encoding(true);
+                Encoding utf8WithBom = new UTF8Encoding(false);
                 using (StreamReader file = new StreamReader(filename, utf8WithBom))
                 {
                     return file.ReadToEnd() != newContent;
@@ -173,7 +173,7 @@ namespace Behaviac.Design.Exporters
             string fileContent = strWriter.ToString();
             if (CheckFileModified(filename, fileContent))
             {
-                Encoding utf8WithBom = new UTF8Encoding(true);
+                Encoding utf8WithBom = new UTF8Encoding(false);
                 using (StreamWriter fileWriter = new StreamWriter(filename, false, utf8WithBom))
                 {
                     fileWriter.Write(fileContent);
