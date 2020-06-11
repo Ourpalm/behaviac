@@ -1,3 +1,4 @@
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tencent is pleased to support the open source community by making behaviac available.
 //
@@ -131,7 +132,7 @@ namespace PluginBehaviac.Nodes
             }
         }
 
-        protected ChildFinishPolicy _childfinishpolicy = ChildFinishPolicy.CHILDFINISH_LOOP;
+        protected ChildFinishPolicy _childfinishpolicy = ChildFinishPolicy.CHILDFINISH_ONCE;
         [DesignerEnum("ChildFinishPolicy", "ChildFinishPolicyDesc", "Parallel", DesignerProperty.DisplayMode.NoDisplay, 2, DesignerProperty.DesignerFlags.NoFlags, "")]
         public ChildFinishPolicy ChildFinishPolicy
         {
