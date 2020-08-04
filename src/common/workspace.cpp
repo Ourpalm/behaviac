@@ -1146,6 +1146,7 @@ namespace behaviac {
     void Workspace::ParseProperty(const behaviac::vector<behaviac::string>& tokens) {
         BEHAVIAC_UNUSED_VAR(tokens);
 #if !BEHAVIAC_RELEASE
+		/*
         const behaviac::string& agentName = tokens[1];
         Agent* pAgent = Agent::GetAgent(agentName.c_str());
 
@@ -1174,7 +1175,7 @@ namespace behaviac {
                 }//end of if (pAgent)
             }
         }
-
+		*/
 #endif
     }
 

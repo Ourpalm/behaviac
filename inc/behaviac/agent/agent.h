@@ -395,10 +395,6 @@ namespace behaviac {
         */
         static void Destroy(Agent* pAgent);
 
-#if !BEHAVIAC_RELEASE
-        static Agent* GetAgent(const char* agentName);
-#endif//BEHAVIAC_RELEASE
-
         /**
         bind 'agentInstanceName' to 'pAgentInstance'.
         'agentInstanceName' should have been registered to the class of 'pAgentInstance' or its parent class.
@@ -512,13 +508,7 @@ namespace behaviac {
         friend class Workspace;
         static void Cleanup();
 
-#if !BEHAVIAC_RELEASE
-        typedef behaviac::map<behaviac::string, Agent*> Agents_t;
-        static Agents_t* ms_agents; // 多线程,已废弃!!
-        static Agents_t* Agents(bool bCleanup);
-#endif//BEHAVIAC_RELEASE
-
-        struct AgentName_t {
+		struct AgentName_t {
             behaviac::string			instantceName_;
             behaviac::string			classFullName_;
             //behaviac::wstring			displayName_;
@@ -558,9 +548,7 @@ namespace behaviac {
         static AgentNames_t*	NamesPtr();
         static AgentNames_t&	Names();
 
-        typedef behaviac::map<behaviac::string, uint32_t> AgentTypeIndexMap_t;
-        static AgentTypeIndexMap_t*	ms_agent_type_index;
-        ///////////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////////
 
         struct BehaviorTreeStackItem_t {
             BehaviorTreeTask*	bt;

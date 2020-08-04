@@ -43,7 +43,6 @@ namespace behaviac {
     bool TryStart(Workspace* workspace);
 
     uint32_t Agent::ms_idMask = 0xffffffff;
-    Agent::AgentTypeIndexMap_t* Agent::ms_agent_type_index = 0;
 
     uint32_t Agent::IdMask() {
         return Agent::ms_idMask;
@@ -99,34 +98,18 @@ namespace behaviac {
     }
 
     void Agent::SetName(const char* instanceName) {
-        if (!instanceName) {
-            uint32_t	typeId = 0;
-            const char* typeFullName = this->GetObjectTypeName();
+		if (!instanceName) {
+			const char* typeFullName = this->GetObjectTypeName();
 
-            const char* typeName = typeFullName;
-            const char* pIt = strrchr(typeFullName, ':');
+			const char* typeName = typeFullName;
+			const char* pIt = strrchr(typeFullName, ':');
 
-            if (pIt) {
-                typeName = pIt + 1;
-            }
-
-            if (!ms_agent_type_index) {
-                ms_agent_type_index = BEHAVIAC_NEW AgentTypeIndexMap_t;
-            }
-
-            AgentTypeIndexMap_t::iterator it = ms_agent_type_index->find(typeFullName);
-
-            if (it == ms_agent_type_index->end()) {
-                typeId = 0;
-                (*ms_agent_type_index)[typeFullName] = 1;
-            } else {
-                typeId = (*ms_agent_type_index)[typeFullName]++;
-            }
+			if (pIt) {
+				typeName = pIt + 1;
+			}
 
             char temp[1024];
-
-            string_sprintf(temp, "%s_%d_%d", typeName, typeId, this->m_id);
-
+            string_sprintf(temp, "%s_%d", typeName, this->m_id);
             this->m_name += temp;
         } else {
             this->m_name = instanceName;
@@ -138,35 +121,7 @@ namespace behaviac {
         this->UnSubsribeToNetwork();
 #endif//#if BEHAVIAC_ENABLE_NETWORKD
 
-#if !BEHAVIAC_RELEASE
-        Agent::Agents_t* agents = Agents(true);
-
-        if (agents) {
-            const char* agentClassName = this->GetObjectTypeName();
-            const behaviac::string& instanceName = this->GetName();
-
-            char aName[1024];
-            string_sprintf(aName, "%s#%s", agentClassName, instanceName.c_str());
-
-            Agent::Agents_t::iterator it = agents->find(aName);
-
-            if (it != agents->end()) {
-                agents->erase(it);
-            } else {
-                for (it = agents->begin(); it != agents->end(); ++it) {
-                    Agent* pAgent = it->second;
-
-                    if (pAgent == this) {
-                        agents->erase(it);
-                        break;
-                    }
-                }
-            }
-        }
-
-#endif
-
-        for (BehaviorTreeTasks_t::iterator it = this->m_behaviorTreeTasks.begin(); it != m_behaviorTreeTasks.end(); ++it) {
+		for (BehaviorTreeTasks_t::iterator it = this->m_behaviorTreeTasks.begin(); it != m_behaviorTreeTasks.end(); ++it) {
             BehaviorTreeTask* bt = *it;
 
             m_workspace->DestroyBehaviorTreeTask(bt, this);
@@ -234,21 +189,6 @@ namespace behaviac {
 
 		Context& c = *pctx; // Context::GetContext(contextId);
         c.AddAgent(pAgent);
-
-#if !BEHAVIAC_RELEASE
-        Agent::Agents_t* agents = Agents(false);
-        // BEHAVIAC_ASSERT(agents);
-
-		if (agents) {
-			const char* agentClassName = pAgent->GetObjectTypeName();
-			const behaviac::string& instanceName = pAgent->GetName();
-
-			char aName[1024];
-			string_sprintf(aName, "%s#%s", agentClassName, instanceName.c_str());
-
-			(*agents)[aName] = pAgent;
-		}
-#endif//BEHAVIAC_RELEASE
 
 #if BEHAVIAC_ENABLE_NETWORKD
         pAgent->SubsribeToNetwork();
@@ -354,26 +294,10 @@ namespace behaviac {
     };
 
     void Agent::Cleanup() {
-#if !BEHAVIAC_RELEASE
-
-        if (ms_agents) {
-            ms_agents->clear();
-            BEHAVIAC_DELETE(ms_agents);
-            ms_agents = 0;
-        }
-
-#endif//
-
         if (ms_names) {
             ms_names->clear();
             BEHAVIAC_DELETE(ms_names);
             ms_names = 0;
-        }
-
-        if (ms_agent_type_index) {
-            ms_agent_type_index->clear();
-            BEHAVIAC_DELETE(ms_agent_type_index);
-            ms_agent_type_index = 0;
         }
 
         //enums meta
@@ -1201,46 +1125,6 @@ namespace behaviac {
 
         return false;
     }
-
-#if !BEHAVIAC_RELEASE
-    Agent::Agents_t* Agent::ms_agents = 0;
-    Agent::Agents_t* Agent::Agents(bool bCleanup) {
-//        if (!bCleanup) {
-//            if (!ms_agents) {
-//                ms_agents = BEHAVIAC_NEW Agent::Agents_t;
-//            }
-
-//            return ms_agents;
-//        }
-
-//        if (ms_agents) {
-//            return ms_agents;
-//        }
-
-        return 0;
-    }
-
-    Agent* Agent::GetAgent(const char* agentName) {
-        Agent* pAgent = Agent::GetInstance(agentName, NULL);
-
-        if (pAgent) {
-            return pAgent;
-        }
-
-        Agent::Agents_t* agents = Agents(false);
-        // BEHAVIAC_ASSERT(agents);
-		if (agents) {
-			Agent::Agents_t::iterator it = agents->find(agentName);
-
-			if (it != agents->end()) {
-				Agent* pA = it->second;
-				return pA;
-			}
-		}
-
-        return 0;
-    }
-#endif//BEHAVIAC_RELEASE
 
     void Agent::LogMessage(const char* message) {
         //int frames = m_workspace->GetFrameSinceStartup();
