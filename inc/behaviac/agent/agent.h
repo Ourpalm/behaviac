@@ -541,13 +541,7 @@ namespace behaviac {
         struct NameComparator {
             bool operator()(const Agent::AgentName_t* _left, const Agent::AgentName_t* _right);
         };
-
-        typedef behaviac::map<behaviac::string, AgentName_t> AgentNames_t;
-
-        static AgentNames_t*	ms_names;
-        static AgentNames_t*	NamesPtr();
-        static AgentNames_t&	Names();
-
+		
 		///////////////////////////////////////////////////////////////////////////////////////
 
         struct BehaviorTreeStackItem_t {

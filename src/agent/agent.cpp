@@ -53,22 +53,7 @@ namespace behaviac {
     }
 
     CFactory<Agent>* Agent::ms_factory;
-
-    Agent::AgentNames_t* Agent::ms_names;
-    Agent::AgentNames_t* Agent::NamesPtr() {
-        return ms_names;
-    }
-
-    Agent::AgentNames_t& Agent::Names() {
-        if (!ms_names) {
-            ms_names = BEHAVIAC_NEW AgentNames_t;
-        }
-
-        BEHAVIAC_ASSERT(ms_names);
-
-        return *ms_names;
-    }
-
+	
     CFactory<Agent>& Agent::Factory() {
         if (!ms_factory) {
             typedef CFactory<Agent> FactoryAgent;
@@ -294,12 +279,6 @@ namespace behaviac {
     };
 
     void Agent::Cleanup() {
-        if (ms_names) {
-            ms_names->clear();
-            BEHAVIAC_DELETE(ms_names);
-            ms_names = 0;
-        }
-
         //enums meta
         CleanupEnumValueNameMaps();
 
@@ -884,24 +863,11 @@ namespace behaviac {
     }
 
     bool Agent::IsInstanceNameRegistered(const char* agentInstanceName) {
-        AgentNames_t::iterator it = Agent::Names().find(agentInstanceName);
-
-        if (it != Agent::Names().end()) {
-            return true;
-        }
-
+        
         return false;
     }
 
     const char* Agent::GetRegisteredClassName(const char* agentInstanceName) {
-        AgentNames_t::iterator it = Agent::Names().find(agentInstanceName);
-
-        if (it != Agent::Names().end()) {
-            AgentName_t& agentName = it->second;
-
-            return agentName.classFullName_.c_str();
-        }
-
         return 0;
     }
 

@@ -628,39 +628,13 @@ namespace behaviac
             agentInstanceNameAny = TAGENT::GetClassTypeName();
         }
 
-        AgentNames_t::iterator it = Agent::Names().find(agentInstanceNameAny);
-
-        if (it == Agent::Names().end())
-        {
-            const char* classFullName = TAGENT::GetClassTypeName();
-
-            Agent::Names()[agentInstanceNameAny] = AgentName_t(agentInstanceNameAny, classFullName, displayName, desc);
-
-            return true;
-        }
-
-        return false;
+       return false;
     }
 
     template<typename TAGENT>
     BEHAVIAC_FORCEINLINE void Agent::UnRegisterInstanceName(const char* agentInstanceName)
     {
-		if (Agent::NamesPtr() != NULL)
-		{
-			const char* agentInstanceNameAny = agentInstanceName;
-
-			if (StringUtils::IsNullOrEmpty(agentInstanceName))
-			{
-				agentInstanceNameAny = TAGENT::GetClassTypeName();
-			}
-
-			AgentNames_t::iterator it = Agent::Names().find(agentInstanceNameAny);
-
-			if (it != Agent::Names().end())
-			{
-				Agent::Names().erase(it);
-			}
-		}
+		
     }
 
     //BEHAVIAC_FORCEINLINE void Variables::SetFromString(Agent* pAgent, const char* variableName, const char* valueStr)
